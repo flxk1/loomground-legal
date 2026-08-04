@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "loomground-legal",
+      "include-component-in-tag": true,
+      "component": "legal",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": ["src/loomground_legal/_version.py"]
+    }
+  }
+}

@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Concrete dev/CI resolution of the abstract ranges in pyproject.toml. Kept out
+# of package metadata so the built distribution stays index-clean. Immutable git
+# revisions only — never a floating branch — so a build can be reproduced.
+#
+# Dependency order (see RELEASING.md): legal is downstream of the whole family.
+# It can only resolve + go green once its upstreams are published at the tags
+# below. For LOCAL development with the sibling checkouts present, conftest.py
+# adds their src/ dirs to the path, so `pytest` runs with no pins installed.
+#
+# Resolvable today (shared with loomground-solver's pinned set):
+loomground-governance @ git+https://github.com/flxk1/loomground-governance@9e91cf8d4b8624fbf017b7a96ec53c3ce366d31e
+loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@6fc6df578a35be58924e8d3700fb992b24d68bbb
+#
+# Pin once published (fill the revision when each is tagged):
+#   loomground-solver    -- needs the RelationAlgebra release (>=0.3); tag solver-v0.3.0
+#   loomground-factual   -- not yet published
+#   loomground-epistemic -- not yet published
+#   loomground-norm      -- not yet published
+# loomground-solver @ git+https://github.com/flxk1/loomground-solver@<solver-v0.3.0 sha>
+# loomground-factual @ git+https://github.com/flxk1/loomground-factual@<sha>
+# loomground-epistemic @ git+https://github.com/flxk1/loomground-epistemic@<sha>
+# loomground-norm @ git+https://github.com/flxk1/loomground-norm@<sha>
+#
+tomli==2.2.1 ; python_version < "3.11"
+pytest>=7.0

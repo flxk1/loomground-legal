@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "loomground-legal"
+dynamic = ["version"]
+description = "The legal domain plane: legal entities, jurisdictional connection algebra (RelationAlgebra-backed), and legal-effect typing bridged into deontic O/P/F + Hohfeld incidents. Data + bridges only — it consumes the family's grammars/engines and grows no reasoning of its own."
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSES/Apache-2.0.txt", "NOTICE"]
+authors = [{ name = "Loomground Contributors" }]
+# Abstract dependencies only — a name and range, no URL — so the built
+# distribution is index-publishable. Dev/CI pins live in requirements-dev.txt.
+dependencies = [
+    "loomground-solver>=0.3,<0.4",
+    "loomground-deontic>=0.1,<0.2",
+    "loomground-norm>=0.1,<0.2",
+    "loomground-factual>=0.1,<0.2",
+    "loomground-epistemic>=0.1,<0.2",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Repository = "https://github.com/flxk1/loomground-legal"
+Issues = "https://github.com/flxk1/loomground-legal/issues"
+
+[tool.setuptools.dynamic]
+version = { attr = "loomground_legal._version.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+loomground_legal = ["artifacts/*.json"]
