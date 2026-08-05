@@ -4,9 +4,10 @@ The **legal domain plane** of the Loomground family. It owns what no other plane
 does — legal *entities*, *jurisdictional* structure, *sources of law*, and
 *instrument lifecycle* — and it borrows every *mechanism* from the family:
 modality from [`loomground-deontic`](https://github.com/flxk1/loomground-deontic),
-rule reasoning from [`loomground-norm`](https://github.com/flxk1/loomground-norm),
 and composition / conflict / grounded reasoning from
-[`loomground-solver`](https://github.com/flxk1/loomground-solver). It supplies
+[`loomground-solver`](https://github.com/flxk1/loomground-solver) — provisions
+lower to solver `Norm`s and the lex maxims run in the solver's
+`LEX_CONFLICT_PACK`. It supplies
 **data and bridges only** and grows no reasoning of its own.
 
 ## What it is (and is not)
