@@ -53,6 +53,17 @@ from .validate import (
     validate_corpus,
 )
 from .contracts import ContractError, ContractInstance, PartyRef
+from .anchoring import (
+    ANCHOR_KINDS,
+    ANCHOR_RELATIONS,
+    Anchor,
+    AnchorKind,
+    AnchorRelation,
+    TextProvision,
+    anchor,
+    place_legal_text,
+    segment_provisions,
+)
 
 __all__ = [
     # entities
@@ -87,5 +98,8 @@ __all__ = [
     "PRIMARY_LAW", "INSTITUTIONAL", "SUPPORTING", "SECONDARY", "GENERAL",
     # contract-instance model (PartyRef + ContractInstance; registry stays in RVND)
     "PartyRef", "ContractInstance", "ContractError",
+    # anchoring (rule → legal instruments/jurisdictions/regulators; generic in/out)
+    "anchor", "place_legal_text", "Anchor", "AnchorKind", "AnchorRelation",
+    "ANCHOR_KINDS", "ANCHOR_RELATIONS", "TextProvision", "segment_provisions",
     "__version__",
 ]
