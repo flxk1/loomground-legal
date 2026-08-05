@@ -28,10 +28,26 @@ from .lifecycle import (
     version_in_force,
 )
 from .citation import Citation, Definition, bind_definition, parse_citation, resolve_xref
+from .world import (
+    Entity,
+    EntityKind,
+    GovEntry,
+    JURISDICTION_KINDS,
+    KIND_TO_FAMILY,
+    ReachResult,
+    WorldEdge,
+    WorldMap,
+    load_world_seed,
+    seed_world,
+)
 
 __all__ = [
     # entities
     "Jurisdiction", "LegalPerson", "Instrument", "Body",
+    # world map (graph container + seed corpus; reach via WorldMap.reach,
+    # which composes through scope_applies → the solver algebra)
+    "WorldMap", "Entity", "EntityKind", "WorldEdge", "GovEntry", "ReachResult",
+    "seed_world", "load_world_seed", "KIND_TO_FAMILY", "JURISDICTION_KINDS",
     # connection algebra (data + accessors; mechanism is the solver's)
     "connection_algebra", "load_connections", "is_connection", "GOVERNING",
     # legal-effect -> deontic bridge
