@@ -40,6 +40,19 @@ from .world import (
     load_world_seed,
     seed_world,
 )
+from .corpus_loader import EU27, build_world, parse_md
+from .instruments import CODE, DOMAIN, TRANCHES, load_instruments
+from .relations import enrich
+from .validate import (
+    GENERAL,
+    INSTITUTIONAL,
+    PRIMARY_LAW,
+    SECONDARY,
+    SUPPORTING,
+    Finding,
+    validate_corpus,
+)
+from .contracts import ContractError, ContractInstance, PartyRef
 
 __all__ = [
     # entities
@@ -63,5 +76,16 @@ __all__ = [
     # citation model (fresh: parse, xref, definition binding)
     "Citation", "Definition", "parse_citation", "resolve_xref",
     "bind_definition",
+    # corpus loader (md reference-table parser → WorldMap; refdir injected)
+    "build_world", "parse_md", "EU27",
+    # instrument-registry metadata + CSV loader (csv_path injected)
+    "load_instruments", "CODE", "DOMAIN", "TRANCHES",
+    # relational enrichment pass (curated memberships/treaties/adequacy/regulators)
+    "enrich",
+    # corpus validation (WorldMap-level; authority tiers + host allow-list)
+    "validate_corpus", "Finding",
+    "PRIMARY_LAW", "INSTITUTIONAL", "SUPPORTING", "SECONDARY", "GENERAL",
+    # contract-instance model (PartyRef + ContractInstance; registry stays in RVND)
+    "PartyRef", "ContractInstance", "ContractError",
     "__version__",
 ]
