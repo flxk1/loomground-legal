@@ -135,6 +135,11 @@ from .worked import (
 from .grammar import (
     LegalStatement, WellFormedness, validate, is_well_formed, outranks, lex_superior,
 )
+# the legal ALGEBRA — the composition operations over statements: apply (statement
+# × facts → conclusion, via subsume_antecedent) and resolve_conflict (statement ×
+# statement → the prevailing statement by lex superior → posterior, antichain →
+# escalate). Consumes the confirmed solver/legal surfaces; Dung defeasibility NOT here.
+from .algebra import Conclusion, apply, Resolution, resolve_conflict
 
 __all__ = [
     # entities
@@ -191,6 +196,8 @@ __all__ = [
     # the legal grammar (statement + recognition gate + source-hierarchy order)
     "LegalStatement", "WellFormedness", "validate", "is_well_formed",
     "outranks", "lex_superior",
+    # the legal algebra (composition operations: apply, resolve_conflict)
+    "Conclusion", "apply", "Resolution", "resolve_conflict",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
