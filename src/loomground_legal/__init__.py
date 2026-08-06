@@ -157,6 +157,10 @@ from .incorporation import (
 from .system import (
     Adjudication, Enactment, Supersession, adjudicate, enact, supersede,
 )
+# the legal-analysis FRONT DOOR — analyse(statements, facts) runs a scenario through
+# the whole stack: recognition (validate; ill-formed law excluded) → adjudication
+# (system.adjudicate over the algebra). Every unsettled point ⊥ → escalate.
+from .analysis import Analysis, analyse
 
 __all__ = [
     # entities
@@ -220,6 +224,8 @@ __all__ = [
     "Incorporation", "incorporate", "resolve_reference", "INCORPORATION_RELATIONS",
     # the legal system layer (Hart secondary rules: change + adjudication)
     "Adjudication", "Enactment", "Supersession", "adjudicate", "enact", "supersede",
+    # the legal-analysis front door (recognition → adjudication over a scenario)
+    "Analysis", "analyse",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
