@@ -162,33 +162,46 @@ _SOURCE_TYPE = {
 
 
 def to_provision(statement: LegalStatement, *, act: str,
-                 provision_id: Optional[str] = None, specificity: int = 0) -> Provision:
+                 provision_id: Optional[str] = None, specificity: int = 0,
+                 time: Optional[int] = None) -> Provision:
     """Bridge a :class:`LegalStatement` to a ``sources.Provision`` for the
     solver-delegated conflict resolution: ``source_type`` from the class rank-map,
-    ``time`` from the version date, ``content`` from the operative content. ``act``
-    and ``specificity`` are supplied (not derivable from the statement). A
-    non-rankable class raises ``ValueError`` (it cannot enter a lex conflict)."""
+    ``content`` from the operative content. ``act`` and ``specificity`` are supplied.
+
+    ``time`` is the norm's **enactment/adoption** date (a monotonic int, e.g.
+    ``20180525``) — the lex-*posterior* key. Supply it explicitly. It falls back to
+    the ``expression_id`` date only if omitted, but note a ``select_version``
+    expression_id encodes the **event/consolidation** date, NOT enactment — so the
+    fallback is unreliable for lex posterior between same-case statements (they
+    would share the event date). A non-rankable class raises ``ValueError``."""
     st = _SOURCE_TYPE.get(statement.source_class)
     if st is None:
         raise ValueError(
             f"{statement.source_class.value} is not rankable in the source-type "
             f"map; it cannot enter a lex conflict (escalate)")
-    time = int(_version_date(statement.expression_id) or 0)
+    t = time if time is not None else int(_version_date(statement.expression_id) or 0)
     return Provision(id=provision_id or statement.label(), act=act,
                      content=statement.operative_content, source_type=st,
-                     specificity=specificity, time=time)
+                     specificity=specificity, time=t)
 
 
 def resolve(statements: Sequence[LegalStatement], *, act: str,
-            specificity: Optional[Sequence[int]] = None) -> Optional[ConflictOutcome]:
+            specificity: Optional[Sequence[int]] = None,
+            times: Optional[Sequence[int]] = None) -> Optional[ConflictOutcome]:
     """Statements colliding on one ``act`` → the solver's FULL lex resolution
     (superior ▷ specialis ▷ posterior), delegated to ``sources.resolve_provisions``
     (which runs ``LEX_CONFLICT_PACK``). Returns the act's :class:`ConflictOutcome`
     — ``status='open'`` when the pack cannot separate a genuine clash (escalate,
     never a fabricated winner) — or **``None`` when there is no collision on the
-    act** (the provisions agree, so there is nothing to resolve). Consumes;
-    resolves no conflict itself."""
-    specs = list(specificity) if specificity is not None else [0] * len(statements)
-    provisions = [to_provision(s, act=act, provision_id=f"p{i}", specificity=specs[i])
+    act** (the provisions agree, so there is nothing to resolve).
+
+    ``times`` are the per-statement **enactment** dates (int ``YYYYMMDD``) — supply
+    them for a correct lex posterior; the ``expression_id`` encodes the event date,
+    not enactment. Consumes; resolves no conflict itself."""
+    n = len(statements)
+    specs = list(specificity) if specificity is not None else [0] * n
+    tms = list(times) if times is not None else [None] * n
+    provisions = [to_provision(s, act=act, provision_id=f"p{i}",
+                               specificity=specs[i], time=tms[i])
                   for i, s in enumerate(statements)]
     return resolve_provisions(provisions).get(act)

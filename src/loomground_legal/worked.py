@@ -62,19 +62,23 @@ def administrative_review(*, authorizing_authority: str, acting_office: str,
 
     1. **Competence** — is ``acting_office`` reachable from ``authorizing_authority``
        over the delegation chain (``compose_paths``)? A non-composing chain →
-       ``OPEN`` (formell rechtswidrig — the acting office is not competent).
+       ``NOT_SATISFIED`` (formell rechtswidrig — a determinate defect, closed-world
+       over the supplied chain).
     2. **Legal basis** (Vorbehalt des Gesetzes) — the authorizing norm must be a
        BINDING, self-executing source (``source_classes``); absent or insufficient
-       → ``OPEN``.
+       → ``NOT_SATISFIED`` (the act cannot stand).
     3. **Ermessen** — discretion is the authority's; the engine SURFACES it
        (``OPEN``), it does not substitute its own choice.
 
-    Folds via the solver's OPEN-dominant ``fold_verdicts``: any ``OPEN`` → the
-    whole review is ``OPEN`` (escalate)."""
+    Folds via the solver's OPEN-dominant ``fold_verdicts``: a determinate defect →
+    ``NOT_SATISFIED`` (the act does not stand); genuine discretion → ``OPEN``
+    (escalate); competent + based + no discretion → ``SATISFIED``."""
     field = legal_field.get("administrative")
     reasons: list[str] = []
 
-    # (1) competence: reachability over the delegation edges (RELATIONAL)
+    # (1) competence: reachability over the delegation edges (RELATIONAL). A
+    # non-composing chain is a DETERMINATE defect — the act is formell rechtswidrig
+    # (closed-world over the supplied chain), not an escalation.
     if authorizing_authority == acting_office:
         competence = Verdict.SATISFIED
     else:
@@ -82,24 +86,25 @@ def administrative_review(*, authorizing_authority: str, acting_office: str,
                  for s, o in competence_edges]
         paths = compose_paths(edges, start=authorizing_authority, min_hops=1)
         reached = any(inf.object == acting_office for inf in paths)
-        competence = Verdict.SATISFIED if reached else Verdict.OPEN
+        competence = Verdict.SATISFIED if reached else Verdict.NOT_SATISFIED
         if not reached:
             reasons.append(
                 f"competence: no delegation chain from {authorizing_authority!r} to "
-                f"{acting_office!r} composes — formell rechtswidrig (escalate)")
+                f"{acting_office!r} composes — formell rechtswidrig")
 
-    # (2) legal basis: Vorbehalt des Gesetzes — a binding, self-executing source
+    # (2) legal basis: Vorbehalt des Gesetzes — a binding, self-executing source.
+    # Absent or insufficient is a DETERMINATE defect (the act cannot stand).
     if authorizing_source is None:
-        legal_basis = Verdict.OPEN
+        legal_basis = Verdict.NOT_SATISFIED
         reasons.append("legal basis: no Ermächtigungsgrundlage — Vorbehalt des "
-                       "Gesetzes unmet (escalate)")
+                       "Gesetzes unmet")
     elif max_effect(authorizing_source) is Effect.BINDING and self_executes(authorizing_source):
         legal_basis = Verdict.SATISFIED
     else:
-        legal_basis = Verdict.OPEN
+        legal_basis = Verdict.NOT_SATISFIED
         reasons.append(
             f"legal basis: {authorizing_source.value} is not a binding self-executing "
-            f"source — insufficient Ermächtigungsgrundlage (escalate)")
+            f"source — insufficient Ermächtigungsgrundlage")
 
     checks = [competence, legal_basis]
     if ermessen:
@@ -175,15 +180,18 @@ def criminal_review(*, conduct_matches: bool, attribution: str, mens_rea: str,
     else:
         mr = Verdict.SATISFIED
 
-    # Rechtswidrigkeit: justification defeats unlawfulness
+    # Rechtswidrigkeit: a valid justification (Notwehr etc.) DEFEATS the charge
+    # determinately — a defence dominates an inculpatory OPEN, because 'not guilty'
+    # is the settled outcome regardless of a contested Tatbestand element. It does
+    # NOT fold OPEN-dominant into an escalation.
     if justification:
-        unlawful = Verdict.NOT_SATISFIED
         reasons.append("Rechtswidrigkeit: a justification (Rechtfertigungsgrund) applies "
-                       "— the deed is not unlawful")
-    else:
-        unlawful = Verdict.SATISFIED
-
-    return CriminalReview(fold_verdicts([obj, mr, unlawful]), obj, mr, unlawful,
+                       "— the deed is not unlawful; the charge fails (not guilty)")
+        return CriminalReview(Verdict.NOT_SATISFIED, obj, mr, Verdict.NOT_SATISFIED,
+                              tuple(reasons))
+    # no justification → guilt requires objektiver + subjektiver Tatbestand (any
+    # contested tier → OPEN, in dubio pro reo; never a conviction on doubt).
+    return CriminalReview(fold_verdicts([obj, mr]), obj, mr, Verdict.SATISFIED,
                           tuple(reasons))
 
 

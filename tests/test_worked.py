@@ -51,22 +51,23 @@ def test_competent_office_with_binding_basis_stands() -> None:
     assert not r.escalates
 
 
-def test_broken_competence_chain_escalates() -> None:
-    # the acting office is not reachable from the authority → formell rechtswidrig
+def test_broken_competence_chain_is_a_determinate_defect() -> None:
+    # the acting office is not reachable from the authority → formell rechtswidrig,
+    # a determinate defect (the act does not stand), NOT an escalation
     r = administrative_review(
         authorizing_authority="supervisor", acting_office="rogue_office",
         competence_edges=_CHAIN,
         authorizing_source=SourceClass.NATIONAL_STATUTE)
-    assert r.competence is Verdict.OPEN
-    assert r.escalates                                     # OPEN dominates
+    assert r.competence is Verdict.NOT_SATISFIED
+    assert r.verdict is Verdict.NOT_SATISFIED and not r.escalates
     assert any("formell rechtswidrig" in x for x in r.reasons)
 
 
-def test_missing_legal_basis_escalates() -> None:
+def test_missing_legal_basis_is_a_determinate_defect() -> None:
     r = administrative_review(
         authorizing_authority="supervisor", acting_office="office",
         competence_edges=_CHAIN, authorizing_source=None)
-    assert r.legal_basis is Verdict.OPEN and r.escalates
+    assert r.legal_basis is Verdict.NOT_SATISFIED and r.verdict is Verdict.NOT_SATISFIED
     assert any("Vorbehalt des Gesetzes" in x for x in r.reasons)
 
 
@@ -75,7 +76,7 @@ def test_soft_law_basis_is_insufficient() -> None:
     r = administrative_review(
         authorizing_authority="supervisor", acting_office="office",
         competence_edges=_CHAIN, authorizing_source=SourceClass.SOFT_LAW)
-    assert r.legal_basis is Verdict.OPEN and r.escalates
+    assert r.legal_basis is Verdict.NOT_SATISFIED and r.verdict is Verdict.NOT_SATISFIED
 
 
 def test_ermessen_is_surfaced_not_substituted() -> None:
@@ -87,13 +88,14 @@ def test_ermessen_is_surfaced_not_substituted() -> None:
     assert any("Ermessen" in x for x in r.reasons)
 
 
-def test_review_never_satisfies_while_a_check_is_open() -> None:
-    # the fabrication-0 invariant: OPEN-dominant fold, no confident 'valid'
+def test_review_never_satisfies_a_defective_act() -> None:
+    # the fabrication-0 invariant: a defective act is never SATISFIED — an
+    # incompetent authority and/or a missing basis → NOT_SATISFIED (never 'valid')
     for src in (None, SourceClass.SOFT_LAW):
         r = administrative_review(
             authorizing_authority="supervisor", acting_office="rogue_office",
             competence_edges=_CHAIN, authorizing_source=src)
-        assert r.verdict is Verdict.OPEN
+        assert r.verdict is Verdict.NOT_SATISFIED
 
 
 # ── intertemporal: same facts, different date → different governing law ───────
@@ -173,6 +175,14 @@ def test_broken_attribution_is_not_guilty_not_open() -> None:
                         mens_rea="vorsatz")
     assert r.objektiver_tatbestand is Verdict.NOT_SATISFIED
     assert r.verdict is Verdict.NOT_SATISFIED
+
+
+def test_justification_dominates_a_contested_tatbestand() -> None:
+    # a valid defence acquits determinately — even with a contested objektive
+    # Zurechnung, the charge fails NOT_SATISFIED (not guilty), not OPEN (escalate)
+    r = criminal_review(conduct_matches=True, attribution="contested",
+                        mens_rea="contested", justification=True)
+    assert r.verdict is Verdict.NOT_SATISFIED and not r.escalates
 
 
 def test_criminal_never_convicts_while_a_tier_is_open() -> None:

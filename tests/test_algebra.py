@@ -143,13 +143,15 @@ def test_resolve_delegates_full_lex_resolution_higher_source_wins() -> None:
     assert oc.status == "determinate" and oc.winner == "p0" and oc.rule == "lex-superior"
 
 
-def test_resolve_equal_rank_settles_lex_posterior() -> None:
-    # two national statutes (equal rank) permission vs prohibition, different version
-    # dates → lex superior can't separate; the solver's pack settles it lex-posterior
-    # (the later prevails). Posterior lives HERE, in resolve, not in resolve_conflict.
-    older = _rankable(SourceClass.NATIONAL_STATUTE, "permission", expr="0old-19950101")
-    newer = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition", expr="0new-20200101")
-    oc = resolve([older, newer], act="drive")
+def test_resolve_lex_posterior_uses_explicit_enactment_time() -> None:
+    # two national statutes (equal rank) consolidated as of the SAME event date
+    # (expression_id) — the expression-id fallback would TIE (event date ≠ enactment
+    # date) → open; explicit enactment `times` separate them by lex posterior (the
+    # later prevails). Posterior lives HERE, in resolve, not in resolve_conflict.
+    a = _rankable(SourceClass.NATIONAL_STATUTE, "permission", expr="0a-20240101")
+    b = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition", expr="0b-20240101")
+    assert resolve([a, b], act="drive").status == "open"            # fallback ties
+    oc = resolve([a, b], act="drive", times=[19950101, 20200101])   # explicit enactment
     assert oc.status == "determinate" and oc.rule == "lex-posterior"
 
 

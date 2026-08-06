@@ -21,6 +21,8 @@ expression id from a work id + an in-force date.
 
 from __future__ import annotations
 
+import datetime
+
 __all__ = ["consolidated_celex", "eli_at", "version_id"]
 
 
@@ -28,6 +30,10 @@ def _check_date(d: str) -> None:
     parts = (d or "").split("-")
     if len(parts) != 3 or not all(p.isdigit() for p in parts) or len(parts[0]) != 4:
         raise ValueError(f"in-force date must be ISO YYYY-MM-DD, got {d!r}")
+    try:                                    # reject impossible calendar dates (2018-99-99)
+        datetime.date(int(parts[0]), int(parts[1]), int(parts[2]))
+    except ValueError:
+        raise ValueError(f"in-force date is not a valid calendar date: {d!r}") from None
 
 
 def consolidated_celex(base_celex: str, in_force_date: str) -> str:

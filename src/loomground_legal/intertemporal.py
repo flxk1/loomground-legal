@@ -178,10 +178,12 @@ def select_version(member: str, events: Sequence[LifecycleEvent], *,
             options=(f"apply the governing version {governing!r} (tempus regit actum)",
                      "escalate to retroactivity review (Vertrauensschutz / constitutional)"))
     # UNECHTE — permissible, but flagged
+    expr = (version_id(celex=celex_of[apply_version], in_force_date=event_time)
+            if apply_version in celex_of else "")
     return VersionSelection(
         TemporalIndex(event_time, apply_version,
                       f"unechte Rückwirkung of {apply_version!r} (retrospective)",
-                      Retroactivity.UNECHTE),
+                      Retroactivity.UNECHTE, expression_id=expr),
         False,
         "retrospective application to still-ongoing facts — permissible, subject "
         "to Vertrauensschutz / Verhältnismäßigkeit")

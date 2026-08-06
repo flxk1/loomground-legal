@@ -33,3 +33,5 @@ def test_version_id_needs_an_anchor_and_a_valid_date() -> None:
         version_id(in_force_date="2018-05-25")            # no celex or code
     with pytest.raises(ValueError):
         version_id(celex="32016R0679", in_force_date="2018")  # not ISO YYYY-MM-DD
+    with pytest.raises(ValueError):
+        version_id(celex="32016R0679", in_force_date="2018-99-99")  # impossible date
