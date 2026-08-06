@@ -127,6 +127,14 @@ from .worked import (
     ConstitutionalReview, constitutional_review,
     SubsumptionReview, review_against_facts,
 )
+# the legal grammar — grammar-first foundation: the canonical legal STATEMENT
+# (the composite element unifying the five smeared norm-objects), its recognition
+# gate (validate), and the source-hierarchy PARTIAL ORDER (outranks / lex_superior,
+# antichain → escalate). Consumes the concrete solver algebras; the lex ordering is
+# the one new algebraic piece. Full defeasible (Dung) resolution is NOT here.
+from .grammar import (
+    LegalStatement, WellFormedness, validate, is_well_formed, outranks, lex_superior,
+)
 
 __all__ = [
     # entities
@@ -180,6 +188,9 @@ __all__ = [
     "Review", "administrative_review", "CriminalReview", "criminal_review",
     "ConstitutionalReview", "constitutional_review",
     "SubsumptionReview", "review_against_facts",
+    # the legal grammar (statement + recognition gate + source-hierarchy order)
+    "LegalStatement", "WellFormedness", "validate", "is_well_formed",
+    "outranks", "lex_superior",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
