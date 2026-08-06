@@ -122,7 +122,10 @@ from .identifiers import consolidated_celex, eli_at, version_id
 # basis (source_classes) and intertemporal selection COMPOSE into one graded
 # conclusion, folded by the solver's OPEN-dominant fold_verdicts. Operational
 # entry point; OPEN (escalate) is the honest terminal, never fabricated.
-from .worked import Review, administrative_review, CriminalReview, criminal_review
+from .worked import (
+    Review, administrative_review, CriminalReview, criminal_review,
+    ConstitutionalReview, constitutional_review,
+)
 
 __all__ = [
     # entities
@@ -174,6 +177,7 @@ __all__ = [
     "consolidated_celex", "eli_at", "version_id",
     # worked reviews (branch profile + competence + legal basis + intertemporal, graded)
     "Review", "administrative_review", "CriminalReview", "criminal_review",
+    "ConstitutionalReview", "constitutional_review",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)

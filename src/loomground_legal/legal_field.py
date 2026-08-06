@@ -313,10 +313,74 @@ CRIMINAL = LegalField(
 )
 
 
+# ── CONSTITUTIONAL law — the nD-dominant branch (reasoning ABOUT other norms) ─
+# Fundamental-rights review is mostly meta: a right is a PRINCIPLE applied by
+# weighing (proportionality), and the review tests a state measure against it.
+
+CONSTITUTIONAL = LegalField(
+    code="constitutional", name="Constitutional law",
+    load_bearing=(Dimension.INTENTIONAL, Dimension.STRUCTURAL, Dimension.RELATIONAL,
+                  Dimension.CAUSAL, Dimension.TEMPORAL),
+    doctrine=(
+        DimensionDoctrine(Dimension.INTENTIONAL, "grundrecht",
+            "A fundamental right is a PRINCIPLE, not a rule — applied by weighing, "
+            "not subsumption (a value in the deontic mode). Routing it through "
+            "rule-subsumption is a category error; its limitation is decided by "
+            "proportionality.",
+            escalates_when=("balancing tie (Abwägung)",)),
+        DimensionDoctrine(Dimension.STRUCTURAL, "schutzbereich",
+            "Schutzbereich: is the conduct within the right's scope of protection? "
+            "The structural gate before any Eingriff/Rechtfertigung question.",
+            escalates_when=("scope of protection contested",)),
+        DimensionDoctrine(Dimension.RELATIONAL, "state_citizen",
+            "The vertical state↔citizen relation — an Eingriff is a state intrusion "
+            "into the protected scope; horizontal effect reaches private relations "
+            "only mittelbar (indirect Drittwirkung)."),
+    ),
+    meta_doctrine=(
+        MetaDoctrine("proportionality",
+            "Verhältnismäßigkeit is THE justification test: legitimate aim · "
+            "Geeignetheit · Erforderlichkeit · Angemessenheit (Abwägung). Delegated "
+            "whole to the solver's proportionality op (Alexy Weight Formula); a "
+            "failed prong or a genuine tie → escalate, never a coin-flipped winner.",
+            consumes="solver.proportionality",
+            escalates_when=("failed prong", "genuine balancing tie")),
+        MetaDoctrine("wesensgehalt",
+            "Art. 19(2) GG: the essence of a right may NEVER be touched — an "
+            "absolute limit that defeats a measure regardless of proportionality.",
+            consumes="",
+            escalates_when=("essence boundary contested",)),
+        MetaDoctrine("schranken_schranken",
+            "Limits-on-limits: a limiting law must itself be constitutional "
+            "(formell + materiell), general (Art. 19(1) GG), and respect the "
+            "Zitiergebot.",
+            consumes="source_classes"),
+    ),
+    analysis_structure=(
+        "Schutzbereich (is the conduct within the right's scope?)",
+        "Eingriff (is there a state intrusion?)",
+        "verfassungsrechtliche Rechtfertigung (Schranke · Schranken-Schranke · "
+        "Verhältnismäßigkeit)",
+    ),
+    actor_kinds=(
+        ActorKind("bearer", "Grundrechtsträger", entity_kind="person"),
+        ActorKind("state", "Hoheitsträger/Staat", entity_kind="public_body",
+                  may_produce=("state_measure",)),
+        ActorKind("legislator", "Gesetzgeber", entity_kind="public_body",
+                  may_produce=("limiting_law",)),
+    ),
+    characteristic_acts=(("limiting_law", Effect.BINDING),
+                         ("state_measure", Effect.BINDING)),
+    escalation_bias=("Verhältnismäßigkeit tie (Abwägung)", "Wesensgehalt boundary",
+                     "Schutzbereich scope contested"),
+)
+
+
 _REGISTRY: dict[str, LegalField] = {
     "civil": CIVIL,
     "administrative": ADMINISTRATIVE,
     "criminal": CRIMINAL,
+    "constitutional": CONSTITUTIONAL,
 }
 
 DEFAULT = "civil"

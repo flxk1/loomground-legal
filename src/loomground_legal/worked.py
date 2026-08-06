@@ -21,14 +21,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional, Sequence, Tuple
 
-from loomground_solver import Dimension, compose_paths
+from loomground_solver import Dimension, ProportionalityResult, compose_paths, proportionality
 from loomground_solver.cross_subsumption import Verdict, fold_verdicts
 from loomground_solver.reasoning import Edge
 
 from . import legal_field
 from .source_classes import Effect, SourceClass, max_effect, self_executes
 
-__all__ = ["Review", "administrative_review", "CriminalReview", "criminal_review"]
+__all__ = [
+    "Review", "administrative_review",
+    "CriminalReview", "criminal_review",
+    "ConstitutionalReview", "constitutional_review",
+]
 
 
 @dataclass(frozen=True)
@@ -178,3 +182,72 @@ def criminal_review(*, conduct_matches: bool, attribution: str, mens_rea: str,
 
     return CriminalReview(fold_verdicts([obj, mr, unlawful]), obj, mr, unlawful,
                           tuple(reasons))
+
+
+@dataclass(frozen=True)
+class ConstitutionalReview:
+    """The graded outcome of fundamental-rights review (Schutzbereich → Eingriff →
+    Rechtfertigung). ``verdict``: the state measure is CONSTITUTIONAL = ``SATISFIED``
+    (justified, or the right is not engaged); ``NOT_SATISFIED`` = unconstitutional
+    (the Wesensgehalt is touched); ``OPEN`` = the Abwägung did not settle — the
+    proportionality op escalates on a tie / failed prong, and the balancing is the
+    court's, surfaced not decided (never a coin-flipped winner)."""
+    verdict: Verdict
+    schutzbereich: Verdict
+    eingriff: bool
+    proportionality: Optional[ProportionalityResult]   # None if not reached
+    reasons: Tuple[str, ...]
+    field: str = "constitutional"
+
+    @property
+    def escalates(self) -> bool:
+        return self.verdict is Verdict.OPEN
+
+
+def constitutional_review(*, in_schutzbereich: bool, eingriff: bool,
+                          touches_wesensgehalt: bool = False,
+                          proportionality_inputs: Optional[dict] = None
+                          ) -> ConstitutionalReview:
+    """Review a state measure against a fundamental right under the three-step
+    Aufbau, delegating the justification balance to ``solver.proportionality``.
+
+    1. **Schutzbereich** — outside the scope → the right is not engaged (the
+       measure stands).
+    2. **Eingriff** — no state intrusion → no infringement (the measure stands).
+    3. **Rechtfertigung** — the Wesensgehalt (Art. 19(2)) is an absolute bar
+       (touched → unconstitutional); otherwise run the real proportionality op —
+       proportionate → justified (SATISFIED), a tie / failed prong → ``OPEN``
+       (the Abwägung is the court's)."""
+    field = legal_field.get("constitutional")
+
+    if not in_schutzbereich:
+        return ConstitutionalReview(
+            Verdict.SATISFIED, Verdict.NOT_SATISFIED, eingriff, None,
+            ("Schutzbereich: the conduct is outside the right's scope — the right is "
+             "not engaged",))
+    if not eingriff:
+        return ConstitutionalReview(
+            Verdict.SATISFIED, Verdict.SATISFIED, False, None,
+            ("Eingriff: no state intrusion into the protected scope — no infringement",))
+    if touches_wesensgehalt:
+        return ConstitutionalReview(
+            Verdict.NOT_SATISFIED, Verdict.SATISFIED, True, None,
+            ("Wesensgehalt (Art. 19(2) GG): the measure touches the essence of the "
+             "right — unconstitutional regardless of proportionality",))
+    if proportionality_inputs is None:
+        return ConstitutionalReview(
+            Verdict.OPEN, Verdict.SATISFIED, True, None,
+            ("Verhältnismäßigkeit: no proportionality inputs — the Abwägung cannot be "
+             "run (escalate)",))
+
+    pr = proportionality(**proportionality_inputs)
+    if pr.escalated():
+        failed = next((p.prong for p in pr.prongs if not p.passed), "stricto-sensu tie")
+        return ConstitutionalReview(
+            Verdict.OPEN, Verdict.SATISFIED, True, pr,
+            (f"Verhältnismäßigkeit: the Abwägung did not settle ({field.escalation_bias[0]}; "
+             f"at {failed}) — escalate; balancing is the court's, not the engine's",))
+    return ConstitutionalReview(
+        Verdict.SATISFIED, Verdict.SATISFIED, True, pr,
+        (f"Verhältnismäßigkeit: proportionate ({pr.prevailing} prevails) — the measure "
+         f"is justified",))

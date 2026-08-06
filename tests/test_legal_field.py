@@ -125,6 +125,20 @@ def test_criminal_three_tier_aufbau_and_strict_legality() -> None:
     assert any("in dubio pro reo" in e for e in crim.escalation_bias)
 
 
+# ── constitutional law — the nD-dominant branch, proportionality-driven ──────
+
+def test_constitutional_is_proportionality_driven() -> None:
+    const = lf.get("constitutional")
+    # a fundamental right is a PRINCIPLE (weighed), led by the intentional dimension
+    assert const.leads_with(Dimension.INTENTIONAL)
+    assert const.doctrine_for(Dimension.INTENTIONAL).doctrine_id == "grundrecht"
+    # proportionality delegates to the solver op; Wesensgehalt is an absolute bar
+    prop = const.meta("proportionality")
+    assert prop is not None and prop.consumes == "solver.proportionality"
+    assert const.meta("wesensgehalt") is not None
+    assert const.analysis_structure[0].startswith("Schutzbereich")
+
+
 # ── (jurisdiction × field) context composes with legal_systems ───────────────
 
 def test_context_pairs_jurisdiction_and_field() -> None:

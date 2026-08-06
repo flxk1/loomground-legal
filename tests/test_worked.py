@@ -12,11 +12,28 @@ from loomground_legal import (
     Retroactivity,
     SourceClass,
     administrative_review,
+    constitutional_review,
     criminal_review,
     select_version,
 )
 from loomground_legal.lifecycle import LifecycleEvent
+from loomground_solver import Alternative, PrincipleWeight
 from loomground_solver.cross_subsumption import Verdict
+
+
+def _prop_inputs(*, suitable=True, side_i_intensity="serious", side_j_intensity="light"):
+    """Proportionality kwargs for a rights measure vs a public interest. Triadic
+    labels are light/moderate/serious throughout."""
+    return dict(
+        aim="public safety", legitimate=True, suitable=suitable,
+        means_effectiveness="serious", means_intrusiveness="moderate",
+        alternatives=(Alternative(label="milder", effectiveness="light",
+                                  intrusiveness="light"),),
+        # side_i = the promoted public interest; side_j = the burdened right
+        side_i=PrincipleWeight(label="public_interest", intensity=side_i_intensity,
+                               abstract_weight="moderate", reliability="serious"),
+        side_j=PrincipleWeight(label="right", intensity=side_j_intensity,
+                               abstract_weight="moderate", reliability="serious"))
 
 # a competence delegation chain: supervisor → authority → office
 _CHAIN = (("supervisor", "authority"), ("authority", "office"))
@@ -164,3 +181,52 @@ def test_criminal_never_convicts_while_a_tier_is_open() -> None:
     r = criminal_review(conduct_matches=True, attribution="contested",
                         mens_rea="contested")
     assert r.verdict is Verdict.OPEN
+
+
+# ── worked constitutional review: runs the REAL proportionality op ───────────
+
+def test_outside_schutzbereich_the_right_is_not_engaged() -> None:
+    r = constitutional_review(in_schutzbereich=False, eingriff=True)
+    assert r.verdict is Verdict.SATISFIED and r.proportionality is None
+
+
+def test_no_eingriff_no_infringement() -> None:
+    r = constitutional_review(in_schutzbereich=True, eingriff=False)
+    assert r.verdict is Verdict.SATISFIED
+
+
+def test_wesensgehalt_touched_is_unconstitutional() -> None:
+    r = constitutional_review(in_schutzbereich=True, eingriff=True,
+                              touches_wesensgehalt=True)
+    assert r.verdict is Verdict.NOT_SATISFIED         # absolute bar, no balancing
+    assert any("Wesensgehalt" in x for x in r.reasons)
+
+
+def test_proportionate_measure_is_justified() -> None:
+    # public interest clearly outweighs the burdened right → op does NOT escalate
+    r = constitutional_review(in_schutzbereich=True, eingriff=True,
+                              proportionality_inputs=_prop_inputs())
+    assert r.verdict is Verdict.SATISFIED
+    assert r.proportionality is not None and not r.proportionality.escalated()
+
+
+def test_balancing_tie_escalates_never_a_coin_flip() -> None:
+    # equal weights → W == 1 → the op escalates → the review is OPEN (court's call)
+    r = constitutional_review(
+        in_schutzbereich=True, eingriff=True,
+        proportionality_inputs=_prop_inputs(side_i_intensity="light",
+                                            side_j_intensity="light"))
+    assert r.verdict is Verdict.OPEN and r.proportionality.escalated()
+    assert any("did not settle" in x for x in r.reasons)
+
+
+def test_failed_prong_escalates() -> None:
+    # an unsuitable means fails a prong → the op escalates → OPEN
+    r = constitutional_review(in_schutzbereich=True, eingriff=True,
+                              proportionality_inputs=_prop_inputs(suitable=False))
+    assert r.verdict is Verdict.OPEN
+
+
+def test_no_proportionality_inputs_escalates_honestly() -> None:
+    r = constitutional_review(in_schutzbereich=True, eingriff=True)
+    assert r.verdict is Verdict.OPEN                  # cannot run the Abwägung → escalate
