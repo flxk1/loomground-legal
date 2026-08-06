@@ -118,6 +118,11 @@ from .intertemporal import (
 # (consolidated CELEX / ELI point-in-time). Identity is a stable code, NEVER the
 # official title; a version is a work × in-force-date.
 from .identifiers import consolidated_celex, eli_at, version_id
+# worked reviews — where the branch profile, competence (compose_paths), legal
+# basis (source_classes) and intertemporal selection COMPOSE into one graded
+# conclusion, folded by the solver's OPEN-dominant fold_verdicts. Operational
+# entry point; OPEN (escalate) is the honest terminal, never fabricated.
+from .worked import Review, administrative_review
 
 __all__ = [
     # entities
@@ -167,6 +172,8 @@ __all__ = [
     "classify_retroactivity", "governing_version", "select_version", "stamp",
     # instrument identifiers: work (CELEX) vs expression (consolidated CELEX / ELI)
     "consolidated_celex", "eli_at", "version_id",
+    # worked reviews (branch profile + competence + legal basis + intertemporal, graded)
+    "Review", "administrative_review",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
