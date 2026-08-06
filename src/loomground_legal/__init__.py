@@ -97,6 +97,66 @@ from .legal_systems import (
     LegalSystem, SourceEntry, SourceRelation, ApplicableLaw,
     applicable_systems, applicable_law,
 )
+# legal-field (branch-of-law) profiles — the orthogonal axis to legal_systems:
+# civil/criminal/administrative/constitutional, each declaring which of the five
+# solver Dimensions carry its weight + the branch doctrine per dimension. nD is
+# modelled as MetaDoctrine (not a sixth Dimension). generic accessors (get/
+# available/register/DEFAULT) stay submodule-only; `context()` pairs it with a
+# jurisdiction (legal_systems).
+from .legal_field import (
+    LegalField, DimensionDoctrine, MetaDoctrine, ActorKind, context,
+)
+# intertemporal law — which version of a norm governs facts at a time (tempus
+# regit actum), the temporal INDEX stamping a conclusion with which-law-as-of-when,
+# and retroactivity (echte/unechte Rückwirkung) as a gated question. Consumes
+# lifecycle.version_in_force; a contested intertemporal choice escalates.
+from .intertemporal import (
+    Retroactivity, TemporalIndex, VersionSelection,
+    classify_retroactivity, governing_version, select_version, stamp,
+)
+# instrument identifiers — work-level (CELEX/code) vs expression-level
+# (consolidated CELEX / ELI point-in-time). Identity is a stable code, NEVER the
+# official title; a version is a work × in-force-date.
+from .identifiers import consolidated_celex, eli_at, version_id
+# worked reviews — where the branch profile, competence (compose_paths), legal
+# basis (source_classes) and intertemporal selection COMPOSE into one graded
+# conclusion, folded by the solver's OPEN-dominant fold_verdicts. Operational
+# entry point; OPEN (escalate) is the honest terminal, never fabricated.
+from .worked import (
+    Review, administrative_review, CriminalReview, criminal_review,
+    ConstitutionalReview, constitutional_review,
+    SubsumptionReview, review_against_facts,
+)
+# the legal grammar — grammar-first foundation: the canonical legal STATEMENT
+# (the composite element unifying the five smeared norm-objects), its recognition
+# gate (validate), and the source-hierarchy PARTIAL ORDER (outranks / lex_superior,
+# antichain → escalate). Consumes the concrete solver algebras; the lex ordering is
+# the one new algebraic piece. Full defeasible (Dung) resolution is NOT here.
+from .grammar import (
+    LegalStatement, WellFormedness, validate, is_well_formed, outranks, lex_superior,
+)
+# the legal ALGEBRA — the composition operations over statements: apply (statement
+# × facts → conclusion, via subsume_antecedent) and resolve_conflict (statement ×
+# statement → the prevailing statement by lex superior → posterior, antichain →
+# escalate). Consumes the confirmed solver/legal surfaces; Dung defeasibility NOT here.
+from .algebra import (
+    Conclusion, apply, Resolution, resolve_conflict,
+    Derivation, derive, to_provision, resolve,
+)
+# legal INCORPORATION / cross-reference — incorporate (source × incorporating →
+# does it validly bind? SC-3 honesty: unincorporated directive/treaty → OPEN,
+# never fabricated binding) + resolve_reference (citation → InstrumentRef, else
+# None). Consumes source_classes force/relations + crossref resolvers.
+from .incorporation import (
+    Incorporation, incorporate, resolve_reference, INCORPORATION_RELATIONS,
+)
+# the legal SYSTEM layer — Hart's secondary rules as ops (recognition = validate,
+# already built): change (enact/supersede via lifecycle/intertemporal) +
+# adjudication (derive → resolve → terminal; any OPEN antecedent or an unseparable
+# collision → escalate). Consumes algebra + intertemporal + lifecycle.
+from .system import (
+    Adjudication, Enactment, Supersession, adjudicate, enact, supersede,
+)
 
 __all__ = [
     # entities
@@ -139,6 +199,27 @@ __all__ = [
     # legal-system packs + applicable-law resolver (conflicts escalate)
     "LegalSystem", "SourceEntry", "SourceRelation", "ApplicableLaw",
     "applicable_systems", "applicable_law",
+    # legal-field (branch-of-law) profiles + the (jurisdiction × field) context
+    "LegalField", "DimensionDoctrine", "MetaDoctrine", "ActorKind", "context",
+    # intertemporal law: tempus regit actum, the temporal index, retroactivity
+    "Retroactivity", "TemporalIndex", "VersionSelection",
+    "classify_retroactivity", "governing_version", "select_version", "stamp",
+    # instrument identifiers: work (CELEX) vs expression (consolidated CELEX / ELI)
+    "consolidated_celex", "eli_at", "version_id",
+    # worked reviews (branch profile + competence + legal basis + intertemporal, graded)
+    "Review", "administrative_review", "CriminalReview", "criminal_review",
+    "ConstitutionalReview", "constitutional_review",
+    "SubsumptionReview", "review_against_facts",
+    # the legal grammar (statement + recognition gate + source-hierarchy order)
+    "LegalStatement", "WellFormedness", "validate", "is_well_formed",
+    "outranks", "lex_superior",
+    # the legal algebra (composition operations: apply, resolve_conflict, derive, resolve)
+    "Conclusion", "apply", "Resolution", "resolve_conflict",
+    "Derivation", "derive", "to_provision", "resolve",
+    # legal incorporation / cross-reference (force via transposition; citation → instrument)
+    "Incorporation", "incorporate", "resolve_reference", "INCORPORATION_RELATIONS",
+    # the legal system layer (Hart secondary rules: change + adjudication)
+    "Adjudication", "Enactment", "Supersession", "adjudicate", "enact", "supersede",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
