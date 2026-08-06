@@ -16,9 +16,6 @@ authors = [{ name = "Loomground Contributors" }]
 dependencies = [
     "loomground-solver>=0.3,<0.4",
     "loomground-deontic>=0.1,<0.2",
-    "loomground-norm>=0.1,<0.2",
-    "loomground-factual>=0.1,<0.2",
-    "loomground-epistemic>=0.1,<0.2",
 ]
 
 [project.optional-dependencies]

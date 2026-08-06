@@ -1,0 +1,26 @@
+{
+  "$comment": "Sources-of-law hierarchy as DATA. rank_order lists source types from highest to lowest authority for the lex-superior defeater (jurisdiction-general shape: supranational primary law over supranational secondary law over national law, constitution first, descending to administrative acts). ranks assigns the numeric rank the solver's Norm.rank carries (higher wins); the gaps leave room for jurisdiction-specific insertions without renumbering. Conflict RESOLUTION is not encoded here and not implemented in this package: the solver's LEX_CONFLICT_PACK applies lex-superior (rank) then lex-specialis (specificity) then lex-posterior (time). specificity and time are per-provision facts supplied by the caller, per the notes.",
+  "rank_order": [
+    "eu_primary_law",
+    "eu_regulation",
+    "eu_directive",
+    "national_constitution",
+    "national_statute",
+    "national_regulation",
+    "administrative_act"
+  ],
+  "ranks": {
+    "eu_primary_law": 700,
+    "eu_regulation": 600,
+    "eu_directive": 500,
+    "national_constitution": 400,
+    "national_statute": 300,
+    "national_regulation": 200,
+    "administrative_act": 100
+  },
+  "notes": {
+    "specificity": "lex specialis: a per-provision fact, not a source-type property — a provision addressing a narrower class of cases carries a higher specificity value; equal-rank conflicts separate on it second.",
+    "time": "lex posterior: the provision's enactment date as a monotonic integer (e.g. ISO date digits 20180525); equal-rank, equal-specificity conflicts separate on it last. Later wins.",
+    "escalation": "two provisions equal on rank, specificity, and time are a GENUINE collision — the solver reports the act 'open' and the conflict escalates; nothing here fabricates a winner."
+  }
+}
