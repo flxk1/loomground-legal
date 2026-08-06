@@ -28,7 +28,7 @@ from loomground_solver.reasoning import Edge
 from . import legal_field
 from .source_classes import Effect, SourceClass, max_effect, self_executes
 
-__all__ = ["Review", "administrative_review"]
+__all__ = ["Review", "administrative_review", "CriminalReview", "criminal_review"]
 
 
 @dataclass(frozen=True)
@@ -101,3 +101,80 @@ def administrative_review(*, authorizing_authority: str, acting_office: str,
                        f"— surfaced, not substituted")
 
     return Review(fold_verdicts(checks), competence, legal_basis, tuple(reasons))
+
+
+@dataclass(frozen=True)
+class CriminalReview:
+    """The graded outcome of a criminal review under the three-tier Aufbau.
+    ``verdict``: guilty = ``SATISFIED``, not-guilty = ``NOT_SATISFIED``, and a
+    contested element = ``OPEN`` — the engine SURFACES doubt (whether to acquit on
+    it is *in dubio pro reo*, the court's call), it never pronounces guilt on a
+    contested element (fabrication 0)."""
+    verdict: Verdict
+    objektiver_tatbestand: Verdict     # conduct + objektive Zurechnung
+    mens_rea: Verdict                  # subjektiver Tatbestand
+    unlawful: Verdict                  # Rechtswidrigkeit (justification → not unlawful)
+    reasons: Tuple[str, ...]
+    field: str = "criminal"
+
+    @property
+    def escalates(self) -> bool:
+        return self.verdict is Verdict.OPEN
+
+
+def criminal_review(*, conduct_matches: bool, attribution: str, mens_rea: str,
+                    offense_requires: str = "vorsatz",
+                    justification: bool = False) -> CriminalReview:
+    """Review a charge under the ``criminal`` branch profile's three tiers.
+
+    - **objektiver Tatbestand** — ``conduct_matches`` AND objective attribution
+      (``attribution`` ∈ ``attributable`` / ``contested`` / ``not_attributable``);
+      a contested causal course (objektive Zurechnung) → ``OPEN``.
+    - **subjektiver Tatbestand** (``mens_rea`` ∈ ``vorsatz`` / ``fahrlaessigkeit``
+      / ``none`` / ``contested``) — must meet ``offense_requires``; a Vorsatzdelikt
+      on negligence → ``NOT_SATISFIED``; the dolus-eventualis line → ``OPEN``.
+    - **Rechtswidrigkeit** — a justification (Notwehr etc.) makes the deed not
+      unlawful → the charge fails.
+
+    Folds via the OPEN-dominant ``fold_verdicts``: any contested tier → the whole
+    review is ``OPEN``, so a conviction is never returned on a contested element."""
+    field = legal_field.get("criminal")
+    reasons: list[str] = []
+
+    # objektiver Tatbestand: conduct + objektive Zurechnung
+    if not conduct_matches:
+        obj = Verdict.NOT_SATISFIED
+        reasons.append("objektiver Tatbestand: conduct does not fit the offence elements")
+    elif attribution == "not_attributable":
+        obj = Verdict.NOT_SATISFIED
+        reasons.append("objektive Zurechnung: the risk did not realise in the result "
+                       "(attribution broken)")
+    elif attribution == "contested":
+        obj = Verdict.OPEN
+        reasons.append("objektive Zurechnung contested (atypical causal course) — escalate")
+    else:
+        obj = Verdict.SATISFIED
+
+    # subjektiver Tatbestand: mens rea vs what the offence requires
+    if mens_rea == "contested":
+        mr = Verdict.OPEN
+        reasons.append(f"mens rea contested ({field.escalation_bias[1]}) — escalate")
+    elif mens_rea == "none":
+        mr = Verdict.NOT_SATISFIED
+        reasons.append("subjektiver Tatbestand: no mens rea")
+    elif offense_requires == "vorsatz" and mens_rea == "fahrlaessigkeit":
+        mr = Verdict.NOT_SATISFIED
+        reasons.append("a Vorsatzdelikt is not made out on Fahrlässigkeit")
+    else:
+        mr = Verdict.SATISFIED
+
+    # Rechtswidrigkeit: justification defeats unlawfulness
+    if justification:
+        unlawful = Verdict.NOT_SATISFIED
+        reasons.append("Rechtswidrigkeit: a justification (Rechtfertigungsgrund) applies "
+                       "— the deed is not unlawful")
+    else:
+        unlawful = Verdict.SATISFIED
+
+    return CriminalReview(fold_verdicts([obj, mr, unlawful]), obj, mr, unlawful,
+                          tuple(reasons))

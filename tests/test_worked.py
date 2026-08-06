@@ -12,6 +12,7 @@ from loomground_legal import (
     Retroactivity,
     SourceClass,
     administrative_review,
+    criminal_review,
     select_version,
 )
 from loomground_legal.lifecycle import LifecycleEvent
@@ -111,3 +112,55 @@ def test_temporal_index_carries_no_retroactivity_on_the_governing_version() -> N
     sel = select_version("reg_v1", _EVENTS, event_time="2000-01-01",
                          enacted=_ENACTED, celex_of=_CELEX)
     assert sel.index.retroactivity is Retroactivity.NONE
+
+
+# ── worked criminal review: three-tier, in dubio pro reo = OPEN dominates ─────
+
+def test_vorsatz_attributable_unjustified_is_guilty() -> None:
+    r = criminal_review(conduct_matches=True, attribution="attributable",
+                        mens_rea="vorsatz")
+    assert r.verdict is Verdict.SATISFIED and not r.escalates
+
+
+def test_contested_mens_rea_escalates_never_convicts() -> None:
+    # dolus eventualis vs bewusste Fahrlässigkeit unresolved → OPEN, not a conviction
+    r = criminal_review(conduct_matches=True, attribution="attributable",
+                        mens_rea="contested")
+    assert r.mens_rea is Verdict.OPEN and r.escalates
+    assert any("mens rea contested" in x for x in r.reasons)
+
+
+def test_contested_attribution_escalates() -> None:
+    # atypical causal course → objektive Zurechnung open → OPEN
+    r = criminal_review(conduct_matches=True, attribution="contested",
+                        mens_rea="vorsatz")
+    assert r.objektiver_tatbestand is Verdict.OPEN and r.escalates
+
+
+def test_negligence_for_a_vorsatzdelikt_is_not_guilty() -> None:
+    r = criminal_review(conduct_matches=True, attribution="attributable",
+                        mens_rea="fahrlaessigkeit", offense_requires="vorsatz")
+    assert r.mens_rea is Verdict.NOT_SATISFIED
+    assert r.verdict is Verdict.NOT_SATISFIED         # not guilty, not 'open'
+
+
+def test_justification_defeats_the_charge() -> None:
+    # Notwehr etc. → not unlawful → charge fails (NOT_SATISFIED)
+    r = criminal_review(conduct_matches=True, attribution="attributable",
+                        mens_rea="vorsatz", justification=True)
+    assert r.unlawful is Verdict.NOT_SATISFIED and r.verdict is Verdict.NOT_SATISFIED
+
+
+def test_broken_attribution_is_not_guilty_not_open() -> None:
+    r = criminal_review(conduct_matches=True, attribution="not_attributable",
+                        mens_rea="vorsatz")
+    assert r.objektiver_tatbestand is Verdict.NOT_SATISFIED
+    assert r.verdict is Verdict.NOT_SATISFIED
+
+
+def test_criminal_never_convicts_while_a_tier_is_open() -> None:
+    # the fabrication-0 invariant, criminal edition: a contested element can never
+    # yield SATISFIED (guilty) — doubt is surfaced, guilt is never fabricated
+    r = criminal_review(conduct_matches=True, attribution="contested",
+                        mens_rea="contested")
+    assert r.verdict is Verdict.OPEN

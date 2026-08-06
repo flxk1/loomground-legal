@@ -249,9 +249,74 @@ ADMINISTRATIVE = LegalField(
 )
 
 
+# ── CRIMINAL law — intentional (mens rea) + causal (attribution) lead ─────────
+# The branch where the *subjective* side and a branch-unique causal test carry
+# the weight, under a strict legality meta-rule and in dubio pro reo.
+
+CRIMINAL = LegalField(
+    code="criminal", name="Criminal law",
+    load_bearing=(Dimension.INTENTIONAL, Dimension.CAUSAL, Dimension.STRUCTURAL,
+                  Dimension.RELATIONAL, Dimension.TEMPORAL),
+    doctrine=(
+        DimensionDoctrine(Dimension.INTENTIONAL, "mens_rea",
+            "The subjective Tatbestand: Vorsatz (dolus directus 1./2. Grades, "
+            "dolus eventualis) vs Fahrlässigkeit. A Vorsatzdelikt is not made out "
+            "on negligence; the dolus-eventualis / bewusste-Fahrlässigkeit line is "
+            "the classic contested point.",
+            escalates_when=("dolus eventualis vs bewusste Fahrlässigkeit",)),
+        DimensionDoctrine(Dimension.CAUSAL, "objektive_zurechnung",
+            "Objective attribution — beyond but-for (Äquivalenz): the actor must "
+            "have created a legally disapproved risk that realised in the result. "
+            "An atypical causal course or eigenverantwortliche Selbstgefährdung "
+            "breaks attribution — the branch-unique causal test.",
+            escalates_when=("risk realisation contested", "atypical causal course")),
+        DimensionDoctrine(Dimension.RELATIONAL, "taeterschaft_teilnahme",
+            "Perpetration (Täterschaft: Allein-, Mit-, mittelbare — by Tatherrschaft) "
+            "vs participation (Teilnahme: Anstiftung, Beihilfe). The boundary "
+            "governs the offender's role and is often contested.",
+            escalates_when=("Täterschaft vs Teilnahme contested",)),
+        DimensionDoctrine(Dimension.STRUCTURAL, "tatbestand",
+            "The objective Tatbestand — the offence's defining elements; the "
+            "conduct must be classified under them (strict, no analogy to the "
+            "defendant's detriment)."),
+        DimensionDoctrine(Dimension.TEMPORAL, "lex_mitior",
+            "Tatzeit + Verjährung, and § 2 StGB lex mitior: the MILDER law between "
+            "act and judgment applies — criminal law's own intertemporal rule, "
+            "distinct from the civil/administrative tempus regit actum default."),
+    ),
+    meta_doctrine=(
+        MetaDoctrine("nulla_poena_sine_lege",
+            "Art. 103(2) GG / § 1 StGB: no punishment without a prior WRITTEN "
+            "statute — Bestimmtheitsgebot (definiteness), Analogieverbot (no "
+            "analogy against the accused), and an ABSOLUTE Rückwirkungsverbot "
+            "(retroactive criminalisation is categorically barred, unlike the "
+            "administrative echte-Rückwirkung balance). The penal norm must be a "
+            "binding statute.",
+            consumes="source_classes",
+            escalates_when=("analogy to the accused's detriment", "norm too vague")),
+    ),
+    analysis_structure=(
+        "Tatbestand (objektiv: conduct · objektive Zurechnung; subjektiv: mens rea)",
+        "Rechtswidrigkeit (Rechtfertigungsgründe, e.g. Notwehr § 32)",
+        "Schuld (Schuldfähigkeit, Unrechtsbewusstsein, Entschuldigungsgründe)",
+    ),
+    actor_kinds=(
+        ActorKind("perpetrator", "Täter", entity_kind="person"),
+        ActorKind("accomplice", "Teilnehmer (Anstifter/Gehilfe)", entity_kind="person"),
+        ActorKind("victim", "Verletzter/Opfer", entity_kind="person"),
+    ),
+    characteristic_acts=(("criminal_judgment", Effect.BINDING),),
+    escalation_bias=("in dubio pro reo (doubt favours the accused)",
+                     "dolus eventualis vs bewusste Fahrlässigkeit",
+                     "objektive Zurechnung (risk realisation)",
+                     "Täterschaft vs Teilnahme"),
+)
+
+
 _REGISTRY: dict[str, LegalField] = {
     "civil": CIVIL,
     "administrative": ADMINISTRATIVE,
+    "criminal": CRIMINAL,
 }
 
 DEFAULT = "civil"

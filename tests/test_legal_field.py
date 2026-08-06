@@ -103,6 +103,28 @@ def test_civil_causation_differs_from_the_criminal_test() -> None:
     assert civil.leads_with(Dimension.RELATIONAL)
 
 
+# ── criminal law — same dimensions, branch-unique doctrine ───────────────────
+
+def test_criminal_leads_with_mens_rea_and_uses_objektive_zurechnung() -> None:
+    crim = lf.get("criminal")
+    assert crim.leads_with(Dimension.INTENTIONAL)
+    # the branch-unique causal test — distinct from civil adequate_cause
+    assert crim.doctrine_for(Dimension.CAUSAL).doctrine_id == "objektive_zurechnung"
+    assert crim.doctrine_for(Dimension.INTENTIONAL).doctrine_id == "mens_rea"
+    assert crim.doctrine_for(Dimension.RELATIONAL).doctrine_id == "taeterschaft_teilnahme"
+
+
+def test_criminal_three_tier_aufbau_and_strict_legality() -> None:
+    crim = lf.get("criminal")
+    assert crim.analysis_structure[0].startswith("Tatbestand")
+    assert "Rechtswidrigkeit" in crim.analysis_structure[1]
+    assert "Schuld" in crim.analysis_structure[2]
+    # nulla poena sine lege — an ABSOLUTE retroactivity bar (vs the admin balance)
+    npsl = crim.meta("nulla_poena_sine_lege")
+    assert npsl is not None and npsl.consumes == "source_classes"
+    assert any("in dubio pro reo" in e for e in crim.escalation_bias)
+
+
 # ── (jurisdiction × field) context composes with legal_systems ───────────────
 
 def test_context_pairs_jurisdiction_and_field() -> None:
