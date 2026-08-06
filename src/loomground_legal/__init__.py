@@ -143,6 +143,20 @@ from .algebra import (
     Conclusion, apply, Resolution, resolve_conflict,
     Derivation, derive, to_provision, resolve,
 )
+# legal INCORPORATION / cross-reference — incorporate (source × incorporating →
+# does it validly bind? SC-3 honesty: unincorporated directive/treaty → OPEN,
+# never fabricated binding) + resolve_reference (citation → InstrumentRef, else
+# None). Consumes source_classes force/relations + crossref resolvers.
+from .incorporation import (
+    Incorporation, incorporate, resolve_reference, INCORPORATION_RELATIONS,
+)
+# the legal SYSTEM layer — Hart's secondary rules as ops (recognition = validate,
+# already built): change (enact/supersede via lifecycle/intertemporal) +
+# adjudication (derive → resolve → terminal; any OPEN antecedent or an unseparable
+# collision → escalate). Consumes algebra + intertemporal + lifecycle.
+from .system import (
+    Adjudication, Enactment, Supersession, adjudicate, enact, supersede,
+)
 
 __all__ = [
     # entities
@@ -202,6 +216,10 @@ __all__ = [
     # the legal algebra (composition operations: apply, resolve_conflict, derive, resolve)
     "Conclusion", "apply", "Resolution", "resolve_conflict",
     "Derivation", "derive", "to_provision", "resolve",
+    # legal incorporation / cross-reference (force via transposition; citation → instrument)
+    "Incorporation", "incorporate", "resolve_reference", "INCORPORATION_RELATIONS",
+    # the legal system layer (Hart secondary rules: change + adjudication)
+    "Adjudication", "Enactment", "Supersession", "adjudicate", "enact", "supersede",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
