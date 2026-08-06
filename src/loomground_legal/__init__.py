@@ -64,6 +64,23 @@ from .anchoring import (
     place_legal_text,
     segment_provisions,
 )
+# competing-definition detection (O34) — consumes citation.Definition
+from .definitions import CompetingSet, detect_competing, competing_for_term
+# referral-kind classification (O14) — consumes citation.resolve_xref; escalates UNCERTAIN
+from .referral import (
+    ReferralKind, ReferralClassification, classify_referral,
+    RECHTSGRUND_CUES, RECHTSFOLGE_CUES,
+)
+# instrument cross-reference resolution — consumes instruments.CODE + solver.Dimension;
+# resolves a citation to (code · CELEX · label) and types the relation verb onto a Dimension
+from .crossref import (
+    InstrumentRef, INSTRUMENTS, CrossReference,
+    resolve_celex, resolve_citation_number, resolve_short_name,
+    infer_host_instrument, extract_cross_references,
+)
+# document-level summary — consumes crossref.infer_host_instrument for the instrument;
+# adds doc-kind classification + identifier + excerpt (one overview per document)
+from .document_summary import DocumentSummary, summarize_document
 
 __all__ = [
     # entities
@@ -87,6 +104,17 @@ __all__ = [
     # citation model (fresh: parse, xref, definition binding)
     "Citation", "Definition", "parse_citation", "resolve_xref",
     "bind_definition",
+    # competing-definition detection (O34)
+    "CompetingSet", "detect_competing", "competing_for_term",
+    # referral-kind classification (O14; UNCERTAIN = escalate)
+    "ReferralKind", "ReferralClassification", "classify_referral",
+    "RECHTSGRUND_CUES", "RECHTSFOLGE_CUES",
+    # instrument cross-reference resolution (citation → code/CELEX/label + relation typing)
+    "InstrumentRef", "INSTRUMENTS", "CrossReference",
+    "resolve_celex", "resolve_citation_number", "resolve_short_name",
+    "infer_host_instrument", "extract_cross_references",
+    # document-level summary (doc-kind + identifier + instrument + excerpt)
+    "DocumentSummary", "summarize_document",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
