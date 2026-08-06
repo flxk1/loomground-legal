@@ -144,15 +144,34 @@ def test_resolve_delegates_full_lex_resolution_higher_source_wins() -> None:
 
 
 def test_resolve_lex_posterior_uses_explicit_enactment_time() -> None:
-    # two national statutes (equal rank) consolidated as of the SAME event date
-    # (expression_id) — the expression-id fallback would TIE (event date ≠ enactment
-    # date) → open; explicit enactment `times` separate them by lex posterior (the
-    # later prevails). Posterior lives HERE, in resolve, not in resolve_conflict.
-    a = _rankable(SourceClass.NATIONAL_STATUTE, "permission", expr="0a-20240101")
-    b = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition", expr="0b-20240101")
-    assert resolve([a, b], act="drive").status == "open"            # fallback ties
+    # equal rank; without explicit enactment `times` both are undated (0) → the pack
+    # cannot separate → open (no fabricated posterior). Explicit `times` settle it by
+    # lex posterior (the later prevails). Posterior lives HERE, not in resolve_conflict.
+    a = _rankable(SourceClass.NATIONAL_STATUTE, "permission")
+    b = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
+    assert resolve([a, b], act="drive").status == "open"            # undated → can't separate
     oc = resolve([a, b], act="drive", times=[19950101, 20200101])   # explicit enactment
     assert oc.status == "determinate" and oc.rule == "lex-posterior"
+
+
+def test_resolve_non_rankable_escalates_not_crashes() -> None:
+    # review F1: a non-rankable statement (case law) makes the collision inseparable —
+    # resolve escalates GRACEFULLY (⊥), it does not raise ValueError
+    cl = _rankable(SourceClass.CASE_LAW, "permission")
+    st = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
+    oc = resolve([cl, st], act="drive")
+    assert oc is not None and oc.status == "open" and oc.escalated
+    assert oc.winner is None and oc.rule == "escalate"
+
+
+def test_resolve_posterior_on_unknown_date_escalates() -> None:
+    # review F2: a lex-posterior decision that turned on an UNKNOWN (0) enactment
+    # date is a fabricated loss (undated == oldest) — resolve escalates instead of
+    # letting the undated statement lose on the merits it does not have
+    a = _rankable(SourceClass.NATIONAL_STATUTE, "permission")     # unknown enactment (0)
+    b = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
+    oc = resolve([a, b], act="drive", times=[0, 20200101])
+    assert oc.status == "open" and oc.escalated                  # not a determinate posterior
 
 
 def test_resolve_unseparable_conflict_is_open() -> None:

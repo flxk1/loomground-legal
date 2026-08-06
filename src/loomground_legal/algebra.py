@@ -81,21 +81,6 @@ class Resolution:
     escalated: bool
 
 
-def _version_date(expression_id: str) -> Optional[str]:
-    """The YYYYMMDD in-force date carried by an expression id — consolidated CELEX
-    ``…-YYYYMMDD`` or ``code@YYYY-MM-DD`` — for lex posterior. ``None`` if absent;
-    fixed-width digits compare chronologically as strings."""
-    if not expression_id:
-        return None
-    if "@" in expression_id:
-        tail = expression_id.split("@", 1)[1].replace("-", "")
-    elif "-" in expression_id:
-        tail = expression_id.rsplit("-", 1)[1]
-    else:
-        return None
-    return tail if tail.isdigit() and len(tail) == 8 else None
-
-
 def resolve_conflict(a: LegalStatement, b: LegalStatement, *,
                      system: Optional[str] = None) -> Resolution:
     """Statement × statement → the prevailing statement by **lex superior only**.
@@ -169,20 +154,26 @@ def to_provision(statement: LegalStatement, *, act: str,
     ``content`` from the operative content. ``act`` and ``specificity`` are supplied.
 
     ``time`` is the norm's **enactment/adoption** date (a monotonic int, e.g.
-    ``20180525``) — the lex-*posterior* key. Supply it explicitly. It falls back to
-    the ``expression_id`` date only if omitted, but note a ``select_version``
-    expression_id encodes the **event/consolidation** date, NOT enactment — so the
-    fallback is unreliable for lex posterior between same-case statements (they
-    would share the event date). A non-rankable class raises ``ValueError``."""
+    ``20180525``) — the lex-*posterior* key. Supply it explicitly; an unknown date
+    is ``0``, which the pack treats as "no date" (it cannot be separated by
+    posterior — :func:`resolve` escalates rather than let a fabricated epoch decide
+    it). It is NOT inferred from the ``expression_id`` (that encodes the
+    event/consolidation date, not enactment — an unreliable posterior key). A
+    non-rankable class raises ``ValueError``."""
     st = _SOURCE_TYPE.get(statement.source_class)
     if st is None:
         raise ValueError(
             f"{statement.source_class.value} is not rankable in the source-type "
             f"map; it cannot enter a lex conflict (escalate)")
-    t = time if time is not None else int(_version_date(statement.expression_id) or 0)
     return Provision(id=provision_id or statement.label(), act=act,
                      content=statement.operative_content, source_type=st,
-                     specificity=specificity, time=t)
+                     specificity=specificity, time=time if time is not None else 0)
+
+
+def _escalate_outcome(act: str) -> ConflictOutcome:
+    """A graceful escalate outcome (⊥) — no fabricated winner, no crash."""
+    return ConflictOutcome(act=act, status="open", verdict="", winner=None,
+                           rule="escalate", escalated=True, resolution=None)
 
 
 def resolve(statements: Sequence[LegalStatement], *, act: str,
@@ -195,13 +186,28 @@ def resolve(statements: Sequence[LegalStatement], *, act: str,
     never a fabricated winner) — or **``None`` when there is no collision on the
     act** (the provisions agree, so there is nothing to resolve).
 
+    Fail-SAFE, never fail-hard or fabricate:
+      * a **non-rankable** statement (case law / soft law / standards / treaty)
+        → a graceful escalate outcome, NOT a raised ``ValueError``;
+      * a **lex-posterior** decision that turned on an **unknown enactment date**
+        (a statement with no explicit ``time`` → ``0``) → escalate, because the
+        loser lost for being undated, not on the merits.
+
     ``times`` are the per-statement **enactment** dates (int ``YYYYMMDD``) — supply
-    them for a correct lex posterior; the ``expression_id`` encodes the event date,
-    not enactment. Consumes; resolves no conflict itself."""
+    them for a correct lex posterior."""
     n = len(statements)
     specs = list(specificity) if specificity is not None else [0] * n
     tms = list(times) if times is not None else [None] * n
-    provisions = [to_provision(s, act=act, provision_id=f"p{i}",
-                               specificity=specs[i], time=tms[i])
-                  for i, s in enumerate(statements)]
-    return resolve_provisions(provisions).get(act)
+    try:
+        provisions = [to_provision(s, act=act, provision_id=f"p{i}",
+                                   specificity=specs[i], time=tms[i])
+                      for i, s in enumerate(statements)]
+    except ValueError:
+        return _escalate_outcome(act)          # F1: non-rankable → escalate, not crash
+    outcome = resolve_provisions(provisions).get(act)
+    if outcome is None:
+        return None
+    # F2/F3: don't trust a posterior decision made on an unknown (0) enactment date
+    if outcome.rule == "lex-posterior" and any(p.time == 0 for p in provisions):
+        return _escalate_outcome(act)
+    return outcome
