@@ -9,12 +9,13 @@ Two operations, built on the confirmed concrete surfaces (nothing re-grown):
     via ``subsume_antecedent``; the consequence fires ONLY when the antecedent is
     SATISFIED. A presupposed/incomplete fact (OPEN) → the conclusion is OPEN
     (escalate), never a fabricated firing — versum's incompleteness propagates.
-  * :func:`resolve_conflict` — **statement × statement → the prevailing statement**.
-    Lex superior over the source-hierarchy partial order (``grammar.outranks``)
-    first; on an antichain, lex posterior by version date (``intertemporal`` /
-    ``identifiers`` expression ids). Lex specialis and full defeasible (Dung)
-    resolution are NOT decided here — if neither superior nor posterior settles
-    it, ⊥ → **escalate**, never a fabricated winner.
+  * :func:`resolve_conflict` — **statement × statement → the prevailing statement
+    by lex superior ONLY** — the maximal element of the source-hierarchy partial
+    order (``grammar.outranks``, the piece this plane owns). When neither outranks
+    the other — equal rank OR a genuine antichain — it ⊥ → **escalate**. It does
+    NOT resolve lex posterior / specialis or the deontic-modal clash: those are
+    the solver's full pack, reached via :func:`resolve` (resolving an antichain by
+    recency would fabricate a winner, so it never does).
 
 The deontic-*modal* clash between two applied consequences (O vs F on the same
 act) is the solver's, resolved by ``scenario.derive(…, pack=LEX_CONFLICT_PACK)``
@@ -97,24 +98,20 @@ def _version_date(expression_id: str) -> Optional[str]:
 
 def resolve_conflict(a: LegalStatement, b: LegalStatement, *,
                      system: Optional[str] = None) -> Resolution:
-    """Statement × statement → the prevailing statement.
+    """Statement × statement → the prevailing statement by **lex superior only**.
 
-    Lex superior (the source-hierarchy partial order) first — the higher-ranked
-    class prevails. On an **antichain** (incomparable classes, e.g. constitution
-    vs supranational-primary), fall to **lex posterior**: the statement with the
-    later version date wins. If neither superior nor posterior settles it — no
-    ordering, or no comparable dates — ⊥ → **escalate** (lex specialis and full
-    defeasible resolution are not built here)."""
+    The higher-ranked class prevails (the maximal element of the source-hierarchy
+    partial order). When neither outranks the other — **equal rank** OR a
+    **genuine antichain** (e.g. constitutional-identity review vs EU primacy) —
+    this is ⊥ → **escalate**. It deliberately does NOT decide lex posterior /
+    specialis or the deontic-modal clash: resolving an antichain by recency would
+    fabricate a winner. For the full resolution (posterior ▷ specialis, per act,
+    with the modal), use :func:`resolve` — the solver's ``LEX_CONFLICT_PACK``."""
     verdict = outranks(a.source_class, b.source_class, system=system)
     if verdict is True:
         return Resolution(a, "lex-superior", False)
     if verdict is False:
         return Resolution(b, "lex-superior", False)
-
-    da, db = _version_date(a.expression_id), _version_date(b.expression_id)
-    if da and db and da != db:
-        return Resolution(a if da > db else b, "lex-posterior", False)
-
     return Resolution(None, "escalate", True)
 
 
@@ -187,8 +184,10 @@ def resolve(statements: Sequence[LegalStatement], *, act: str,
     """Statements colliding on one ``act`` → the solver's FULL lex resolution
     (superior ▷ specialis ▷ posterior), delegated to ``sources.resolve_provisions``
     (which runs ``LEX_CONFLICT_PACK``). Returns the act's :class:`ConflictOutcome`
-    — ``status='open'`` when the pack cannot separate them (escalate, never a
-    fabricated winner). Consumes; resolves no conflict itself."""
+    — ``status='open'`` when the pack cannot separate a genuine clash (escalate,
+    never a fabricated winner) — or **``None`` when there is no collision on the
+    act** (the provisions agree, so there is nothing to resolve). Consumes;
+    resolves no conflict itself."""
     specs = list(specificity) if specificity is not None else [0] * len(statements)
     provisions = [to_provision(s, act=act, provision_id=f"p{i}", specificity=specs[i])
                   for i, s in enumerate(statements)]

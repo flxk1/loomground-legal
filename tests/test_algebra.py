@@ -86,18 +86,18 @@ def test_lex_superior_the_higher_class_prevails() -> None:
     assert r.prevailing.source_class is SourceClass.CONSTITUTION
 
 
-def test_antichain_falls_to_lex_posterior_by_version_date() -> None:
-    # incomparable classes (constitution vs supranational-primary), but datable →
-    # the later version prevails (lex posterior)
+def test_genuine_antichain_escalates_even_with_dates() -> None:
+    # constitutional-identity review vs EU primacy is a GENUINE collision — it is
+    # NOT resolved by recency. lex posterior never crosses the antichain: even with
+    # version dates present, resolve_conflict escalates (the fix — a fabricated
+    # recency-winner here would break the honesty spine).
     older = _stmt(SourceClass.CONSTITUTION, expr="0constitution-19950101")
     newer = _stmt(SourceClass.SUPRANATIONAL_PRIMARY, expr="0primary-20200101")
     r = resolve_conflict(older, newer)
-    assert r.rule == "lex-posterior" and r.prevailing is newer
+    assert r.escalated and r.prevailing is None and r.rule == "escalate"
 
 
 def test_antichain_with_no_dates_escalates() -> None:
-    # incomparable classes AND no version dates → neither superior nor posterior
-    # settles it → ⊥ escalate, never a fabricated winner
     r = resolve_conflict(_stmt(SourceClass.CONSTITUTION),
                          _stmt(SourceClass.SUPRANATIONAL_PRIMARY))
     assert r.escalated and r.prevailing is None and r.rule == "escalate"
@@ -141,6 +141,16 @@ def test_resolve_delegates_full_lex_resolution_higher_source_wins() -> None:
     sta = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
     oc = resolve([con, sta], act="drive")
     assert oc.status == "determinate" and oc.winner == "p0" and oc.rule == "lex-superior"
+
+
+def test_resolve_equal_rank_settles_lex_posterior() -> None:
+    # two national statutes (equal rank) permission vs prohibition, different version
+    # dates → lex superior can't separate; the solver's pack settles it lex-posterior
+    # (the later prevails). Posterior lives HERE, in resolve, not in resolve_conflict.
+    older = _rankable(SourceClass.NATIONAL_STATUTE, "permission", expr="0old-19950101")
+    newer = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition", expr="0new-20200101")
+    oc = resolve([older, newer], act="drive")
+    assert oc.status == "determinate" and oc.rule == "lex-posterior"
 
 
 def test_resolve_unseparable_conflict_is_open() -> None:
