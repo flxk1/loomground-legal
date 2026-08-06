@@ -114,6 +114,10 @@ from .intertemporal import (
     Retroactivity, TemporalIndex, VersionSelection,
     classify_retroactivity, governing_version, select_version, stamp,
 )
+# instrument identifiers — work-level (CELEX/code) vs expression-level
+# (consolidated CELEX / ELI point-in-time). Identity is a stable code, NEVER the
+# official title; a version is a work × in-force-date.
+from .identifiers import consolidated_celex, eli_at, version_id
 
 __all__ = [
     # entities
@@ -161,6 +165,8 @@ __all__ = [
     # intertemporal law: tempus regit actum, the temporal index, retroactivity
     "Retroactivity", "TemporalIndex", "VersionSelection",
     "classify_retroactivity", "governing_version", "select_version", "stamp",
+    # instrument identifiers: work (CELEX) vs expression (consolidated CELEX / ELI)
+    "consolidated_celex", "eli_at", "version_id",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)

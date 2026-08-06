@@ -99,3 +99,20 @@ def test_stamp_does_not_mutate_the_input_receipt() -> None:
     sel = select_version("reg_v1", _EVENTS, event_time="2020-01-01", enacted=_ENACTED)
     stamp(sel.index, original)
     assert "temporal_index" not in original           # returned a new dict
+
+
+def test_expression_id_is_a_real_consolidated_celex_not_a_token() -> None:
+    # give the lineage members their base CELEX → the index cites the EXPRESSION
+    celex_of = {"reg_v1": "31995L0046", "reg_v2": "32016R0679"}
+    sel = select_version("reg_v1", _EVENTS, event_time="2020-06-01",
+                         enacted=_ENACTED, celex_of=celex_of)
+    assert sel.selected
+    assert sel.index.norm_version == "reg_v2"                       # the governing WORK
+    assert sel.index.expression_id == "02016R0679-20200601"        # the EXPRESSION at T
+    # a 2000 fact cites the OLD work's expression, not the current one
+    old = select_version("reg_v1", _EVENTS, event_time="2000-01-01",
+                         enacted=_ENACTED, celex_of=celex_of)
+    assert old.index.expression_id == "01995L0046-20000101"
+    # without celex_of, expression_id is empty (honest — no fabricated id)
+    plain = select_version("reg_v1", _EVENTS, event_time="2000-01-01", enacted=_ENACTED)
+    assert plain.index.expression_id == ""

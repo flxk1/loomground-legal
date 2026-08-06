@@ -36,6 +36,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Mapping, Optional, Sequence
 
+from .identifiers import version_id
 from .lifecycle import LifecycleEvent, version_in_force
 
 __all__ = [
@@ -62,13 +63,15 @@ class TemporalIndex:
     version, as of WHICH event time, on WHAT basis. Stamped into a conclusion's
     receipt so the verdict states which law as of when — not the current text."""
     event_time: str                      # T_event — ISO date the facts occurred
-    norm_version: str                    # the version selected as governing
+    norm_version: str                    # the governing lineage member (the WORK)
     basis: str                           # "tempus regit actum" | a transitional-rule cite
     retroactivity: Retroactivity = Retroactivity.NONE
+    expression_id: str = ""              # consolidated-CELEX / ELI point-in-time (the EXPRESSION)
 
     def receipt(self) -> dict:
         return {"event_time": self.event_time, "norm_version": self.norm_version,
-                "basis": self.basis, "retroactivity": self.retroactivity.value}
+                "basis": self.basis, "retroactivity": self.retroactivity.value,
+                "expression_id": self.expression_id}
 
 
 @dataclass(frozen=True)
@@ -126,15 +129,21 @@ def select_version(member: str, events: Sequence[LifecycleEvent], *,
                    event_time: str,
                    enacted: Optional[Mapping[str, str]] = None,
                    apply_version: Optional[str] = None,
-                   facts_completed: bool = True) -> VersionSelection:
+                   facts_completed: bool = True,
+                   celex_of: Optional[Mapping[str, str]] = None) -> VersionSelection:
     """Choose which version governs facts at ``event_time``.
 
     Default (``apply_version`` None or == the governing version): **tempus regit
     actum** — the version in force at the facts' time governs, and the result is
     a :class:`TemporalIndex`. When a *different* version is applied, classify the
     retroactivity: ECHTE → contested (escalate); UNECHTE → selected but flagged;
-    undatable → contested. Nothing in force at ``event_time`` → contested."""
+    undatable → contested. Nothing in force at ``event_time`` → contested.
+
+    ``celex_of`` (lineage member → base CELEX) makes the index's ``expression_id``
+    a real consolidated-CELEX for the governing work as of ``event_time`` — the
+    citable "which law, as of when" — instead of a bare member token."""
     enacted = enacted or {}
+    celex_of = celex_of or {}
     governing = version_in_force(member, events, at=event_time, enacted=enacted)
     if governing is None:
         return VersionSelection(
@@ -144,8 +153,10 @@ def select_version(member: str, events: Sequence[LifecycleEvent], *,
                      "hold non-applicable — no governing law at that time"))
 
     if apply_version is None or apply_version == governing:
+        expr = (version_id(celex=celex_of[governing], in_force_date=event_time)
+                if governing in celex_of else "")
         return VersionSelection(
-            TemporalIndex(event_time, governing, "tempus regit actum"),
+            TemporalIndex(event_time, governing, "tempus regit actum", expression_id=expr),
             False,
             f"the version in force at {event_time} governs (tempus regit actum)")
 
