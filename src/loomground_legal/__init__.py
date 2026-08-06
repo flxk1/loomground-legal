@@ -81,6 +81,22 @@ from .crossref import (
 # document-level summary — consumes crossref.infer_host_instrument for the instrument;
 # adds doc-kind classification + identifier + excerpt (one overview per document)
 from .document_summary import DocumentSummary, summarize_document
+# universal source-class map — the jurisdiction-agnostic half of applicable-law
+# theory (source KINDS, effect ceilings, relation vocabulary, incorporation
+# invariant). ``Effect`` here is legal FORCE (persuasive→binding), distinct from
+# ``effect.LegalEffect`` (the deontic shadow). generic accessors (get/available/
+# register/DEFAULT/catalogue) stay submodule-only.
+from .source_classes import (
+    Effect, SourceClass, Relation, VOCABULARY, SourceFinding,
+    is_relation, max_effect, self_executes, requires_incorporation, check_source,
+)
+# legal-system meta-layer — switchable jurisdiction-family packs (DE/EU/UK/US) +
+# the applicable-law resolver (selection → full governing source set; conflicts
+# escalate, never auto-resolved). consumes .source_classes.
+from .legal_systems import (
+    LegalSystem, SourceEntry, SourceRelation, ApplicableLaw,
+    applicable_systems, applicable_law,
+)
 
 __all__ = [
     # entities
@@ -115,6 +131,14 @@ __all__ = [
     "infer_host_instrument", "extract_cross_references",
     # document-level summary (doc-kind + identifier + instrument + excerpt)
     "DocumentSummary", "summarize_document",
+    # universal source-class map (source KINDS, effect ceilings, relation vocab,
+    # incorporation invariant). Effect = legal force, distinct from LegalEffect.
+    "Effect", "SourceClass", "Relation", "VOCABULARY", "SourceFinding",
+    "is_relation", "max_effect", "self_executes", "requires_incorporation",
+    "check_source",
+    # legal-system packs + applicable-law resolver (conflicts escalate)
+    "LegalSystem", "SourceEntry", "SourceRelation", "ApplicableLaw",
+    "applicable_systems", "applicable_law",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
