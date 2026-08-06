@@ -22,7 +22,9 @@ from dataclasses import dataclass
 from typing import Optional, Sequence, Tuple
 
 from loomground_solver import Dimension, ProportionalityResult, compose_paths, proportionality
-from loomground_solver.cross_subsumption import Verdict, fold_verdicts
+from loomground_solver.cross_subsumption import (
+    AntecedentVerdict, Condition, FactSpace, Verdict, fold_verdicts, subsume_antecedent,
+)
 from loomground_solver.reasoning import Edge
 
 from . import legal_field
@@ -32,6 +34,7 @@ __all__ = [
     "Review", "administrative_review",
     "CriminalReview", "criminal_review",
     "ConstitutionalReview", "constitutional_review",
+    "SubsumptionReview", "review_against_facts",
 ]
 
 
@@ -251,3 +254,39 @@ def constitutional_review(*, in_schutzbereich: bool, eingriff: bool,
         Verdict.SATISFIED, Verdict.SATISFIED, True, pr,
         (f"Verhältnismäßigkeit: proportionate ({pr.prevailing} prevails) — the measure "
          f"is justified",))
+
+
+@dataclass(frozen=True)
+class SubsumptionReview:
+    """A branch antecedent subsumed against a 5D+nD ``FactSpace`` — the folded
+    verdict plus every per-condition :class:`DimVerdict`. ``OPEN`` propagates:
+    one condition resting on presupposed-but-ungrounded data opens the whole."""
+    verdict: Verdict
+    per_condition: Tuple                        # tuple[DimVerdict]
+    field: str
+
+    @property
+    def escalates(self) -> bool:
+        return self.verdict is Verdict.OPEN
+
+
+def review_against_facts(field_code: str, conditions: Sequence[Condition],
+                         facts: FactSpace) -> SubsumptionReview:
+    """Subsume a branch's antecedent ``conditions`` against a 5D+nD ``FactSpace``
+    — the dimension-tagged, grounded data that **versum** produces — using the
+    solver's cross-dimensional subsumption. This is the seam where *versum's data
+    lives in solver's reasoning*: each condition is routed to its dimension's
+    evaluator (structural reachability, causal grounded-edges, temporal Date,
+    relational algebra, else the closed-world literal) over the matching field of
+    the FactSpace.
+
+    The honesty spine is versum's incompleteness, propagated: the FactSpace's
+    ``incomplete_causal`` / ``incomplete_structural`` channels mark what a
+    construction *presupposed but never grounded*, so a condition resting on such
+    a region is **OPEN** — never a fabricated SATISFIED, and (crucially) distinct
+    from a closed-world **NOT_SATISFIED** where the taxonomy is known-complete.
+    The antecedent folds OPEN-dominant (``subsume_antecedent``); the branch
+    profile (``field_code``) selects which conditions and dimensions apply."""
+    legal_field.get(field_code)                 # fail-closed: unknown branch → KeyError
+    av: AntecedentVerdict = subsume_antecedent(conditions, facts)
+    return SubsumptionReview(av.verdict, av.conditions, field_code)

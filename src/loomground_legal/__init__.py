@@ -125,6 +125,7 @@ from .identifiers import consolidated_celex, eli_at, version_id
 from .worked import (
     Review, administrative_review, CriminalReview, criminal_review,
     ConstitutionalReview, constitutional_review,
+    SubsumptionReview, review_against_facts,
 )
 
 __all__ = [
@@ -178,6 +179,7 @@ __all__ = [
     # worked reviews (branch profile + competence + legal basis + intertemporal, graded)
     "Review", "administrative_review", "CriminalReview", "criminal_review",
     "ConstitutionalReview", "constitutional_review",
+    "SubsumptionReview", "review_against_facts",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
