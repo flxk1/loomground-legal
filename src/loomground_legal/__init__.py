@@ -97,6 +97,15 @@ from .legal_systems import (
     LegalSystem, SourceEntry, SourceRelation, ApplicableLaw,
     applicable_systems, applicable_law,
 )
+# legal-field (branch-of-law) profiles — the orthogonal axis to legal_systems:
+# civil/criminal/administrative/constitutional, each declaring which of the five
+# solver Dimensions carry its weight + the branch doctrine per dimension. nD is
+# modelled as MetaDoctrine (not a sixth Dimension). generic accessors (get/
+# available/register/DEFAULT) stay submodule-only; `context()` pairs it with a
+# jurisdiction (legal_systems).
+from .legal_field import (
+    LegalField, DimensionDoctrine, MetaDoctrine, ActorKind, context,
+)
 
 __all__ = [
     # entities
@@ -139,6 +148,8 @@ __all__ = [
     # legal-system packs + applicable-law resolver (conflicts escalate)
     "LegalSystem", "SourceEntry", "SourceRelation", "ApplicableLaw",
     "applicable_systems", "applicable_law",
+    # legal-field (branch-of-law) profiles + the (jurisdiction × field) context
+    "LegalField", "DimensionDoctrine", "MetaDoctrine", "ActorKind", "context",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
