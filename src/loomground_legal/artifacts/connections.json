@@ -1,5 +1,5 @@
 {
-  "$comment": "The legal connection algebra as DATA, lifted verbatim from RVND workspaces/legal_connection.py. vocabulary = the Connection enum; compose = the partial composition table (result: a relation name, the string 'ESCALATE' for a contested chain, or null when nothing follows); inverses = the clean duals; dimensions = the connection -> 5D projection; governing = relations that, as the result of a reach computation, mean a legal order actually governs the entity. The solver's RelationAlgebra owns all composition mechanics.",
+  "$comment": "The legal connection algebra as DATA — the legal connection vocabulary + partial composition table. vocabulary = the Connection enum; compose = the partial composition table (result: a relation name, the string 'ESCALATE' for a contested chain, or null when nothing follows); inverses = the clean duals; dimensions = the connection -> 5D projection; governing = relations that, as the result of a reach computation, mean a legal order actually governs the entity. The solver's RelationAlgebra owns all composition mechanics.",
   "vocabulary": [
     "member_of",
     "has_primacy_over",
