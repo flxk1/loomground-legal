@@ -106,6 +106,14 @@ from .legal_systems import (
 from .legal_field import (
     LegalField, DimensionDoctrine, MetaDoctrine, ActorKind, context,
 )
+# intertemporal law — which version of a norm governs facts at a time (tempus
+# regit actum), the temporal INDEX stamping a conclusion with which-law-as-of-when,
+# and retroactivity (echte/unechte Rückwirkung) as a gated question. Consumes
+# lifecycle.version_in_force; a contested intertemporal choice escalates.
+from .intertemporal import (
+    Retroactivity, TemporalIndex, VersionSelection,
+    classify_retroactivity, governing_version, select_version, stamp,
+)
 
 __all__ = [
     # entities
@@ -150,6 +158,9 @@ __all__ = [
     "applicable_systems", "applicable_law",
     # legal-field (branch-of-law) profiles + the (jurisdiction × field) context
     "LegalField", "DimensionDoctrine", "MetaDoctrine", "ActorKind", "context",
+    # intertemporal law: tempus regit actum, the temporal index, retroactivity
+    "Retroactivity", "TemporalIndex", "VersionSelection",
+    "classify_retroactivity", "governing_version", "select_version", "stamp",
     # corpus loader (md reference-table parser → WorldMap; refdir injected)
     "build_world", "parse_md", "EU27",
     # instrument-registry metadata + CSV loader (csv_path injected)
