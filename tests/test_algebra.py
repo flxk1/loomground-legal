@@ -7,16 +7,26 @@ source-hierarchy partial order, then lex posterior by version date; an antichain
 with no comparable dates is ⊥ → escalate, never a fabricated winner."""
 from __future__ import annotations
 
+import pytest
+
 from loomground_legal import (
     Effect,
     LegalStatement,
     SourceClass,
     apply,
+    derive,
+    resolve,
     resolve_conflict,
+    to_provision,
 )
 from loomground_solver import Dimension
 from loomground_solver.cross_subsumption import Condition, FactSpace, Verdict
 from loomground_solver.reasoning import Edge
+
+
+def _cond(subject, object):
+    return (Condition(name=f"{subject}->{object}", dimension=Dimension.STRUCTURAL,
+                      subject=subject, object=object),)
 
 # a statute whose antecedent is one structural condition: authority ⟶ office
 _ANTECEDENT = (Condition(name="competent", dimension=Dimension.STRUCTURAL,
@@ -91,3 +101,58 @@ def test_antichain_with_no_dates_escalates() -> None:
     r = resolve_conflict(_stmt(SourceClass.CONSTITUTION),
                          _stmt(SourceClass.SUPRANATIONAL_PRIMARY))
     assert r.escalated and r.prevailing is None and r.rule == "escalate"
+
+
+# ── derive: fire a set of statements against facts (one pass) ─────────────────
+
+def _statute_over(subject, object):
+    return LegalStatement(source=f"{subject}->{object}",
+                          source_class=SourceClass.NATIONAL_STATUTE,
+                          claimed_effect=Effect.BINDING, operative_content="duty",
+                          antecedent=_cond(subject, object))
+
+
+def test_derive_partitions_fired_open_and_inapplicable() -> None:
+    facts = FactSpace(
+        structural_edges=(Edge("authority", "delegates", "office", Dimension.STRUCTURAL),),
+        incomplete_structural=(("authority", "ghost"),))
+    fires = _statute_over("authority", "office")       # reachable → SATISFIED
+    opens = _statute_over("authority", "ghost")        # unreachable but flagged → OPEN
+    inappl = _statute_over("authority", "nowhere")     # unreachable, complete → NOT_SAT
+    d = derive([fires, opens, inappl], facts)
+    assert [c.statement for c in d.fired] == [fires]
+    assert [c.statement for c in d.open] == [opens]
+    assert [c.statement for c in d.inapplicable] == [inappl]
+    assert d.escalates                                 # an OPEN statement present
+
+
+# ── resolve: deontic-modal conflict on an act (delegated to the LEX pack) ─────
+
+def _rankable(cls, content, expr=""):
+    return LegalStatement(source=cls.value, source_class=cls,
+                          claimed_effect=Effect.BINDING, operative_content=content,
+                          expression_id=expr)
+
+
+def test_resolve_delegates_full_lex_resolution_higher_source_wins() -> None:
+    # constitution PERMISSION vs statute PROHIBITION on the same act → clash;
+    # the solver's LEX_CONFLICT_PACK settles it lex-superior (constitution = p0)
+    con = _rankable(SourceClass.CONSTITUTION, "permission")
+    sta = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
+    oc = resolve([con, sta], act="drive")
+    assert oc.status == "determinate" and oc.winner == "p0" and oc.rule == "lex-superior"
+
+
+def test_resolve_unseparable_conflict_is_open() -> None:
+    # two national statutes, permission vs prohibition, no separating rank/spec/time
+    # → the pack cannot separate them → status 'open' (escalate)
+    a = _rankable(SourceClass.NATIONAL_STATUTE, "permission")
+    b = _rankable(SourceClass.NATIONAL_STATUTE, "prohibition")
+    oc = resolve([a, b], act="drive")
+    assert oc.status == "open"
+
+
+def test_a_non_rankable_class_cannot_enter_the_conflict() -> None:
+    # case law is not in the source-type rank map → to_provision fails closed
+    with pytest.raises(ValueError):
+        to_provision(_rankable(SourceClass.CASE_LAW, "duty"), act="drive")
