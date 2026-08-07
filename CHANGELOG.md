@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.0...legal-v0.2.1) (2026-08-07)
+
+
+### Bug Fixes
+
+* correct the loomground-solver constraint from an unsatisfiable `>=0.3,<0.4` to `>=0.2,<0.3` — solver is 0.2.x (every consumed symbol ships there) and the phantom 0.3 floor made a shared install with loomground-ingest (solver<0.3) unresolvable ([f756221](https://github.com/flxk1/loomground-legal/commit/f756221216f79f55f703642d8d574cd7d3667291))
+
 ## [0.2.0](https://github.com/flxk1/loomground-legal/compare/legal-v0.1.0...legal-v0.2.0) (2026-08-06)
 
 
