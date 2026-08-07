@@ -14,7 +14,11 @@ authors = [{ name = "Loomground Contributors" }]
 # Abstract dependencies only — a name and range, no URL — so the built
 # distribution is index-publishable. Dev/CI pins live in requirements-dev.txt.
 dependencies = [
-    "loomground-solver>=0.3,<0.4",
+    # solver is 0.2.x — every consumed symbol (cross_subsumption, proportionality,
+    # compose_paths, LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0.
+    # Keep this in the 0.2 line: a >=0.3 floor is unsatisfiable (no solver 0.3 is
+    # cut) and collides with loomground-ingest's solver<0.3 in a shared install.
+    "loomground-solver>=0.2,<0.3",
     "loomground-deontic>=0.1,<0.2",
 ]
 
