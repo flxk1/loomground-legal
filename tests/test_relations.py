@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
 """The relational pass — curated membership/treaty/adequacy/regulator DATA
-(lifted verbatim from RVND world_relations) and enrich()'s edge derivation over
+(lifted verbatim from host world_relations) and enrich()'s edge derivation over
 a seeded WorldMap. Instruments are injected, not env-resolved."""
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ def _edgeset(w: WorldMap):
     return {(e.subject, e.connection, e.object) for e in w.edges}
 
 
-# ── curated data parity (byte-identical lift from RVND world_relations) ────────
+# ── curated data parity (byte-identical lift from host world_relations) ────────
 
 def test_curated_membership_set_values():
     # Council of Europe = EU27 + these four; Russia expelled 2022.

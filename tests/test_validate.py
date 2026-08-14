@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
 """Corpus validation at the WorldMap level — authority tiers + official-host
-allow-list (lifted verbatim from RVND corpus/validate). The validate_registry
-wrapper (EntityRegistry) stays in RVND."""
+allow-list (lifted verbatim from host corpus/validate). The validate_registry
+wrapper (EntityRegistry) stays in host."""
 from __future__ import annotations
 
 from loomground_legal import Entity, EntityKind, WorldMap, validate_corpus

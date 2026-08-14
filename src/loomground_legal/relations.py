@@ -24,14 +24,14 @@ it a legal graph rather than an inventory:
 
 Every derived edge carries a ``basis``; edges whose membership/ratification
 status moves over time carry an explicit "verify current status" marker. The
-curated data is lifted verbatim from RVND ``world_relations``; nothing here is
+curated data is lifted verbatim from host ``world_relations``; nothing here is
 guessed.
 
-**Instruments are injected.** RVND's ``enrich`` reached into
+**Instruments are injected.** host's ``enrich`` reached into
 ``regulatory_population.load_instruments()`` (an env-resolved CSV). The package
 takes the loaded ``{celex: row}`` dict as an argument; the host wires
 ``enrich(world, instruments=load_instruments(default_csv()))``. Passing ``None``
-skips the acquis step (the same effect as RVND's missing-CSV branch).
+skips the acquis step (the same effect as host's missing-CSV branch).
 """
 
 from __future__ import annotations

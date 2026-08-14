@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
-"""The legal connection algebra: LC-1..LC-5 ported from RVND's
+"""The legal connection algebra: LC-1..LC-5 ported from host's
 ``legal_connection.ALGEBRA_LAWS`` as concrete assertions over the packaged
 data, running on the REAL ``loomground_solver.RelationAlgebra`` mechanism.
 """
@@ -98,9 +98,9 @@ def test_inverses():
     assert alg.inverse("member_of") is None                  # no clean dual
 
 
-# ── the JSON round-trips RVND's legal_connection faithfully ───────────────────
+# ── the JSON round-trips host's legal_connection faithfully ───────────────────
 
-# Every entry of legal_connection._COMPOSE (RVND @ workspaces/legal_connection.py),
+# Every entry of legal_connection._COMPOSE (host @ workspaces/legal_connection.py),
 # as (a, b) -> "ESCALATE" | None | relation-name. 25 entries.
 _EXPECTED_COMPOSE = {
     ("incorporated_in", "member_of"): "subject_to",

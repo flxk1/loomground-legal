@@ -14,10 +14,10 @@ This is the step that turns the four lists from inert reference files into the
 graph the rest of the stack reasons over. Pure stdlib.
 
 **Bring your own corpus.** :func:`build_world` takes the reference directory as an
-argument — it is *injected*, never resolved here. The host (RVND) owns the
+argument — it is *injected*, never resolved here. The host (host) owns the
 ``WORKSPACE_WORLD_MAP_DIR`` / ``~/.workspace`` resolver; the package stays free of
 any environment or home-directory assumption. The markdown parser and the
-country/``EU27``/body-code maps are lifted verbatim from RVND
+country/``EU27``/body-code maps are lifted verbatim from host
 ``world_corpus_loader``.
 """
 
@@ -179,7 +179,7 @@ def build_world(refdir: str | Path) -> WorldMap:
     ``refdir``.
 
     ``refdir`` is injected by the caller — the package does not resolve it from
-    the environment or the home directory. RVND owns the
+    the environment or the home directory. host owns the
     ``WORKSPACE_WORLD_MAP_DIR`` / ``~/.workspace`` resolver and passes the path in.
     """
     if refdir is None:

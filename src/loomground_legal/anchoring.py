@@ -8,7 +8,7 @@ GDPR" is *governed by* an instrument (the GDPR), which *applies in* a
 jurisdiction (the EU) and is *enforced by* a regulator (the EDPB, a national DPA
 …). Anchoring is the legal-domain step that resolves those placements. This
 module is where that ontology and that resolution logic now live — the legal
-plane — lifted from the anchoring behavior RVND wired into loomground-norm's
+plane — lifted from the anchoring behavior host wired into loomground-norm's
 rule registry (``server/src/workspaces/adapters/norm.py``: ``_anchors_for`` /
 ``_host_instrument_anchors`` / ``_host_anchor_dicts``), made **norm-independent**.
 
@@ -20,7 +20,7 @@ no ``SpanNorm``, no host paths, no folder context:
   :class:`Anchor` against a :class:`~loomground_legal.world.WorldMap`. Candidate
   recognition, when not supplied, is a light built-in match of the text against
   the instruments already in the world; a consumer with a richer recogniser
-  (RVND's ``corpus.ingest.candidates_from_text``) bridges its result in through
+  (host's ``corpus.ingest.candidates_from_text``) bridges its result in through
   ``candidates`` and gets byte-identical placements.
 * :func:`place_legal_text` — cut a *law's own text* into provisions (built-in
   :func:`segment_provisions`, overridable) and anchor each to its host
