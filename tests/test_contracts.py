@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
 """The contract-instance model — PartyRef (ISO 17442 LEI checksum) and
-ContractInstance (typed temporal bindings), lifted verbatim from RVND
-contracts/instance. The ContractRegistry (folder JSONL + audit) stays in RVND."""
+ContractInstance (typed temporal bindings), lifted verbatim from host
+contracts/instance. The ContractRegistry (folder JSONL + audit) stays in host."""
 from __future__ import annotations
 
 import pytest

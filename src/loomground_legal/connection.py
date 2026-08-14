@@ -4,7 +4,7 @@
 
 This module loads ``artifacts/connections.json`` (the connection vocabulary,
 the partial composition table, the inverse map, and the connection → 5D
-projection — lifted verbatim from RVND's ``legal_connection``) and builds a
+projection — lifted verbatim from host's ``legal_connection``) and builds a
 :class:`loomground_solver.RelationAlgebra` over it.
 
 Deliberately NO composition logic lives here: ``compose`` / ``compose_path`` /

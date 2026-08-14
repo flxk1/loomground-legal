@@ -21,10 +21,10 @@ scores four independent dimensions for every entity in a
 
 The output is a per-entity finding plus a corpus-health summary. Pure stdlib; the
 live probe is injected. The authority tiers and official-host allow-list are
-lifted verbatim from RVND ``corpus/validate``.
+lifted verbatim from host ``corpus/validate``.
 
 **WorldMap-level only.** The ``validate_registry(registry)`` wrapper (which takes
-RVND's ``EntityRegistry`` and calls ``registry.to_world_map()``) STAYS in RVND.
+host's ``EntityRegistry`` and calls ``registry.to_world_map()``) STAYS in host.
 """
 
 from __future__ import annotations

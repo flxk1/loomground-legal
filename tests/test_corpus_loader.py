@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
-"""The markdown reference-table parser + code maps (lifted verbatim from RVND
+"""The markdown reference-table parser + code maps (lifted verbatim from host
 world_corpus_loader). build_world(refdir) is injected — the package resolves no
 env or home directory."""
 from __future__ import annotations

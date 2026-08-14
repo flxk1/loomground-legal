@@ -24,7 +24,7 @@ malformed dates; :class:`PartyRef` rejects malformed LEIs). The temporal value
 types come from :mod:`loomground_solver.temporal`.
 
 **Model only.** The ``ContractRegistry`` (folder JSONL persistence, signed
-mutation-log audit, and the world-map ``_project`` adapter) STAYS in RVND — it is
+mutation-log audit, and the world-map ``_project`` adapter) STAYS in host — it is
 folder runtime, not domain model.
 """
 

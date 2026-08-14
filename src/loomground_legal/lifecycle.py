@@ -10,7 +10,7 @@ already carries (``supersedes``, ``descends_from``, ``presumes_conformity``,
 belong to the lifecycle only — ``repeals`` and ``amends``. Those two are
 deliberately NOT added to the connection composition algebra: they never
 compose (nothing follows from *A repeals B* ∘ anything), so they live here as
-event vocabulary, and ``connections.json`` stays exactly the RVND
+event vocabulary, and ``connections.json`` stays exactly the host
 ``legal_connection`` table.
 
 Resolution is typed and deterministic, and purely temporal — no doctrine:

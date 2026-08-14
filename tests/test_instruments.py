@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 flxk1
-"""Instrument-registry metadata (CODE/DOMAIN/TRANCHES, lifted verbatim from RVND
+"""Instrument-registry metadata (CODE/DOMAIN/TRANCHES, lifted verbatim from host
 regulatory_population) + the load_instruments CSV parser. The csv_path is
-injected; the env resolver + populate_* stay in RVND."""
+injected; the env resolver + populate_* stay in host."""
 from __future__ import annotations
 
 import pytest

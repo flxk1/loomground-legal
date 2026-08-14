@@ -27,7 +27,7 @@ building connection chains, but every applicability question is answered by
 :func:`loomground_legal.scope.scope_applies` — which folds the chain through the
 solver's :class:`~loomground_solver.RelationAlgebra` (``compose_path``). No
 composition, no GOVERNING check, and no left-fold live here: the package keeps
-the same no-parallel-mechanism discipline RVND does. ``reach`` is graph walking
+the same no-parallel-mechanism discipline host does. ``reach`` is graph walking
 plus provenance bookkeeping; the algebra is the solver's, whole and entire.
 """
 from __future__ import annotations
@@ -378,7 +378,7 @@ def seed_world() -> WorldMap:
     A real, citable starting corpus of the digital-law stack (EU + members, the
     EU digital acquis with ELI URLs, Council-of-Europe/OECD, the regulators and
     standards bodies), marked ``seed`` and meant to grow. The DATA is lifted
-    verbatim from RVND ``legal_world.seed_world`` — this loader only rebuilds the
+    verbatim from host ``legal_world.seed_world`` — this loader only rebuilds the
     graph from it.
     """
     data = load_world_seed()

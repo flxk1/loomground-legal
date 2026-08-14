@@ -235,7 +235,7 @@ __all__ = [
     # corpus validation (WorldMap-level; authority tiers + host allow-list)
     "validate_corpus", "Finding",
     "PRIMARY_LAW", "INSTITUTIONAL", "SUPPORTING", "SECONDARY", "GENERAL",
-    # contract-instance model (PartyRef + ContractInstance; registry stays in RVND)
+    # contract-instance model (PartyRef + ContractInstance; registry stays in host)
     "PartyRef", "ContractInstance", "ContractError",
     # anchoring (rule → legal instruments/jurisdictions/regulators; generic in/out)
     "anchor", "place_legal_text", "Anchor", "AnchorKind", "AnchorRelation",

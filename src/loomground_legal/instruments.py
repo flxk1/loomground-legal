@@ -4,13 +4,13 @@
 
 The curated CELEX → canonical-code map (:data:`CODE`), the code → domain-tags map
 (:data:`DOMAIN`), and the ordered ingest tranches (:data:`TRANCHES`) are lifted
-verbatim from RVND ``regulatory_population``. :func:`load_instruments` is the CSV
+verbatim from host ``regulatory_population``. :func:`load_instruments` is the CSV
 parser that reads a "bring your own" instrument registry (CELEX, dates,
 supersession, official source URL) into a ``{celex: row}`` dict.
 
-**Data + parser only.** The ``populate_*`` functions (which write RVND's
+**Data + parser only.** The ``populate_*`` functions (which write host's
 ``EntityRegistry``) and the ``default_csv()`` environment resolver
-(``WORKSPACE_INSTRUMENTS_CSV`` / ``~/.workspace``) STAY in RVND — the package ships
+(``WORKSPACE_INSTRUMENTS_CSV`` / ``~/.workspace``) STAY in host — the package ships
 no corpus and resolves no path. The caller injects ``csv_path``.
 """
 
@@ -53,7 +53,7 @@ def load_instruments(csv_path: str | Path) -> dict[str, dict]:
 
     ``csv_path`` is injected by the caller — the package does not resolve
     ``WORKSPACE_INSTRUMENTS_CSV`` or ``~/.workspace``; that resolver stays in the
-    host (RVND ``regulatory_population.default_csv``).
+    host (host ``regulatory_population.default_csv``).
     """
     if csv_path is None:
         raise FileNotFoundError(

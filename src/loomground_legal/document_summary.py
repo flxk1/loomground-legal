@@ -9,7 +9,7 @@ Answers "what is this document?" once per document (not per rule): its **kind**
 
 The instrument identity is not re-derived here — it is **consumed** from
 :func:`loomground_legal.crossref.infer_host_instrument` (the single regulation-name
-inference in the family; two RVND twins of it retire onto this one). This module
+inference in the family; two host twins of it retire onto this one). This module
 adds only the document-kind classification, the identifier extraction, and the
 excerpt. Data + detection, deterministic, no inference of its own.
 """
