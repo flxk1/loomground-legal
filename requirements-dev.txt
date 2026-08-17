@@ -11,13 +11,20 @@
 # Resolvable today (shared with loomground-solver's pinned set):
 loomground-governance @ git+https://github.com/flxk1/loomground-governance@9e91cf8d4b8624fbf017b7a96ec53c3ce366d31e
 loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@6fc6df578a35be58924e8d3700fb992b24d68bbb
+# solver-v0.2.1 — the same revision RVND pins, so a shared install resolves to one
+# solver. This satisfies the >=0.2,<0.3 range in pyproject.toml; without it `pip
+# install .` looks for loomground-solver on the index, finds nothing, and the whole
+# job fails before a single test runs. Every symbol this plane consumes
+# (cross_subsumption, proportionality, compose_paths, LEX_CONFLICT_PACK,
+# RelationAlgebra, ESCALATE) is present at this revision and the suite passes
+# against it — RelationAlgebra did NOT first land in 0.3, as the earlier note here
+# claimed.
+loomground-solver @ git+https://github.com/flxk1/loomground-solver@f8ac006de541215dc82a4cbd5bbd1497a4e658d1
 #
 # Pin once published (fill the revision when each is tagged):
-#   loomground-solver    -- needs the RelationAlgebra release (>=0.3); tag solver-v0.3.0
 #   loomground-factual   -- not yet published
 #   loomground-epistemic -- not yet published
 #   loomground-norm      -- not yet published
-# loomground-solver @ git+https://github.com/flxk1/loomground-solver@<solver-v0.3.0 sha>
 # loomground-factual @ git+https://github.com/flxk1/loomground-factual@<sha>
 # loomground-epistemic @ git+https://github.com/flxk1/loomground-epistemic@<sha>
 # loomground-norm @ git+https://github.com/flxk1/loomground-norm@<sha>
