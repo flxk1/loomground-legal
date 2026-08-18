@@ -14,15 +14,14 @@ authors = [{ name = "Loomground Contributors" }]
 # Abstract dependencies only — a name and range, no URL — so the built
 # distribution is index-publishable. Dev/CI pins live in requirements-dev.txt.
 dependencies = [
-    # solver is 0.2.x — every consumed symbol (cross_subsumption, proportionality,
-    # compose_paths, LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0
-    # and the suite passes against solver-v0.2.1, the revision RVND pins.
-    # Keep this in the 0.2 line: solver 0.3.0 and 0.4.0 are now cut, but the
-    # family's consumed line is still 0.2.x (RVND pins solver-v0.2.1), so a >=0.3
-    # floor here would break the shared install — including with
-    # loomground-ingest's solver<0.3. Move this range only when the whole family
-    # moves together.
-    "loomground-solver>=0.2,<0.3",
+    # Every consumed symbol (cross_subsumption, proportionality, compose_paths,
+    # LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0 and is still
+    # present in 0.5.0. The old <0.3 cap existed because the family's consumed
+    # line was 0.2.x; the family is now moving together, so the cap is lifted
+    # rather than raised — this package works across the whole range, and pinning
+    # a floor it does not need would force consumers off 0.2 for nothing.
+    # Verified: the full suite (334 tests) passes against solver 0.5.0.
+    "loomground-solver>=0.2,<0.6",
     "loomground-deontic>=0.1,<0.2",
 ]
 
