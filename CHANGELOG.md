@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.2](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.1...legal-v0.2.2) (2026-08-18)
+
+
+### Bug Fixes
+
+* **deps:** lift the solver cap to &lt;0.6 ([#8](https://github.com/flxk1/loomground-legal/issues/8)) ([c955033](https://github.com/flxk1/loomground-legal/commit/c955033c4c75a5f8fa31c5989b850967da089636))
+* **deps:** pin solver so CI can install, and correct two stale notes ([22ef769](https://github.com/flxk1/loomground-legal/commit/22ef769be659e39b286a0364228dae2ef28dc989))
+
+
+### Documentation
+
+* **roadmap:** reconstructing a chain of agency ([af051cb](https://github.com/flxk1/loomground-legal/commit/af051cb069a9856e447de56640d74ceb1554a817))
+* **roadmap:** reconstructing a chain of agency ([0126135](https://github.com/flxk1/loomground-legal/commit/0126135fd5e7eca0c8631796bc2d2feb14ea6990))
+
 ## [0.2.1](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.0...legal-v0.2.1) (2026-08-07)
 
 
