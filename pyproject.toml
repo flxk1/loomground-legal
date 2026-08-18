@@ -15,9 +15,13 @@ authors = [{ name = "Loomground Contributors" }]
 # distribution is index-publishable. Dev/CI pins live in requirements-dev.txt.
 dependencies = [
     # solver is 0.2.x — every consumed symbol (cross_subsumption, proportionality,
-    # compose_paths, LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0.
-    # Keep this in the 0.2 line: a >=0.3 floor is unsatisfiable (no solver 0.3 is
-    # cut) and collides with loomground-ingest's solver<0.3 in a shared install.
+    # compose_paths, LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0
+    # and the suite passes against solver-v0.2.1, the revision RVND pins.
+    # Keep this in the 0.2 line: solver 0.3.0 and 0.4.0 are now cut, but the
+    # family's consumed line is still 0.2.x (RVND pins solver-v0.2.1), so a >=0.3
+    # floor here would break the shared install — including with
+    # loomground-ingest's solver<0.3. Move this range only when the whole family
+    # moves together.
     "loomground-solver>=0.2,<0.3",
     "loomground-deontic>=0.1,<0.2",
 ]
