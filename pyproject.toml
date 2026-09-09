@@ -12,7 +12,7 @@ license = "Apache-2.0"
 license-files = ["LICENSES/Apache-2.0.txt", "NOTICE"]
 authors = [{ name = "Loomground Contributors" }]
 # Abstract dependencies only — a name and range, no URL — so the built
-# distribution is index-publishable. Dev/CI pins live in requirements-dev.txt.
+# distribution is index-publishable. Dev/CI pins live in the `dev` extra.
 dependencies = [
     # Every consumed symbol (cross_subsumption, proportionality, compose_paths,
     # LEX_CONFLICT_PACK, RelationAlgebra, ESCALATE) ships in 0.2.0 and is still
@@ -27,6 +27,20 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=7.0"]
+# Concrete dev/CI resolution of the abstract ranges above: immutable git
+# revisions only, the same set loomground-legal and loomground-norm pin so the
+# planes resolve to one upstream. loomground-governance is not a direct
+# dependency — loomground_solver imports it at module import time and it is on
+# no index, so pip needs the URL to resolve the solver at all.
+# Not yet published, so unpinned: loomground-factual, loomground-epistemic,
+# loomground-norm.
+dev = [
+    "loomground-governance @ git+https://github.com/flxk1/loomground-governance@9e91cf8d4b8624fbf017b7a96ec53c3ce366d31e",
+    "loomground-deontic @ git+https://github.com/flxk1/loomground-deontic@6fc6df578a35be58924e8d3700fb992b24d68bbb",
+    "loomground-solver @ git+https://github.com/flxk1/loomground-solver@f8ac006de541215dc82a4cbd5bbd1497a4e658d1",
+    "tomli==2.2.1 ; python_version < '3.11'",
+    "pytest>=7.0",
+]
 
 [project.urls]
 Repository = "https://github.com/flxk1/loomground-legal"
@@ -40,3 +54,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 loomground_legal = ["artifacts/*.json"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
