@@ -1,76 +1,62 @@
 # loomground-legal
 
-The **legal domain plane** of the Loomground family. It owns what no other plane
-does — legal *entities*, *jurisdictional* structure, *sources of law*, and
-*instrument lifecycle* — and it borrows every *mechanism* from the family:
-modality from [`loomground-deontic`](https://github.com/flxk1/loomground-deontic),
-and composition / conflict / grounded reasoning from
-[`loomground-solver`](https://github.com/flxk1/loomground-solver) — provisions
-lower to solver `Norm`s and the lex maxims run in the solver's
-`LEX_CONFLICT_PACK`. It supplies
-**data and bridges only** and grows no reasoning of its own.
+Legal domain plane: entities, jurisdictions, sources of law, applicability, and instrument lifecycle, bridged into loomground-deontic and loomground-solver.
 
-## What it is (and is not)
-
-- **Connection algebra** — a jurisdiction/legal-person/instrument relation
-  vocabulary and a *partial* composition table (`incorporated_in ∘ member_of →
-  subject_to`; contested reach → `ESCALATE`). The table is **data**; the engine
-  is the solver's `RelationAlgebra`. Legal carries no `compose` logic.
-- **Legal-effect → deontic bridge** — maps a provision's operative content to
-  its legal effect: duty → **O**, permission/liberty → **P**, prohibition →
-  **F**, power/immunity → the Hohfeld incidents. A statutory *right* is **never**
-  a fourth "R" operator — it is a permission, or a claim-right via
-  `deontic.correlative` (claim ↔ duty).
-- **Scope / applicability** — "does instrument I bind entity E for act A at
-  time T?" answered by *composing* the entity's connection chain on the
-  solver's algebra (GDPR Art 3(1) establishment / Art 3(2) targeting are the
-  reference cases); contested reach comes back `applies=None` + escalated.
-- **Sources of law** — a source-type rank map (`artifacts/sources.json`,
-  data) and a lowering of provisions into solver `Norm`s; *lex superior /
-  specialis / posterior* run entirely in the solver's `LEX_CONFLICT_PACK`
-  via `derive(...)` — a conflict the pack cannot separate escalates as a
-  genuine collision.
-- **Instrument lifecycle** — dated `supersedes` / `repeals` / `amends` events
-  over the lineage relations; deterministic "which version is in force at T".
-- **Citation model** — a typed `Citation` (article / paragraph / point /
-  subparagraph / recital / annex), a fresh parser for the common forms,
-  internal cross-reference resolution, and definition binding ("as defined in
-  Art 4(1)"). What it cannot parse it leaves unset — never a guessed locus.
-- **Not** governance (agent oversight), **not** norm (generic rule reasoning),
-  **not** the solver (domain-agnostic engine). Legal is the domain those planes
-  deliberately exclude.
-
-The escalate-don't-guess discipline runs through it: contested law
-(extraterritorial reach, treaty self-execution, corporate-group attribution)
-surfaces as `ESCALATE`, never a fabricated resolution.
-
-## Layout
+## Install
 
 ```
-src/loomground_legal/
-  entities.py            typed legal entities (Jurisdiction, LegalPerson, Instrument, Body)
-  connection.py          builds a solver RelationAlgebra from artifacts/connections.json
-  scope.py               applicability/reach by composition (contested -> ESCALATE)
-  sources.py             sources-of-law rank + lex maxims, delegated to the solver
-  lifecycle.py           instrument lifecycle & lineage; in-force-at-T
-  citation.py            citation model + parser, xref + definition binding (fresh)
-  effect.py              legal-effect -> deontic bridge
-  artifacts/
-    connections.json     the connection vocabulary + composition table (data)
-    sources.json         the source-type rank map + conflict notes (data)
-```
-
-## Development
-
-The family is a set of sibling repositories. For local development, check them
-out beside this one and either install the pinned dev set
-
-```
-python3 -m pip install -e ".[dev]"
+git clone https://github.com/flxk1/loomground-legal
+cd loomground-legal
+python3 -m pip install -e ".[dev]" -r requirements-dev.txt
 python3 -m pytest
 ```
 
-or, if the sibling packages are present but not installed, `tests/conftest.py` adds
-their `src/` directories to the path so `pytest` runs from a fresh checkout with
-no install step. Canonical resolution for CI is the git-revision pin set in
-the `dev` extra of `pyproject.toml`. Release mechanics are in `RELEASING.md`.
+Sibling checkouts beside this one run without the install step (`tests/conftest.py`).
+
+## Usage
+
+```python
+from loomground_legal import legal_effect, parse_citation, scope_applies
+
+legal_effect("duty")                             # LegalEffect(operator='O', incident='duty', correlative_incident='claim')
+parse_citation("Article 3(2)")                   # Citation(article='3', paragraph='2')
+scope_applies(["incorporated_in", "member_of"])  # ScopeResult(applies=True, basis='subject_to', axis='territorial')
+```
+
+Contested reach returns `applies=None, escalated=True`.
+
+## Interface
+
+Owned data, `src/loomground_legal/artifacts/`:
+
+| File | Content |
+|---|---|
+| `connections.json` | 31 connection relations, 25 composition rules, inverses, dimensions, governing set |
+| `sources.json` | 7 source-type ranks, `eu_primary_law` … `administrative_act`, with conflict notes |
+| `world_seed.json` | 39 entities, 32 edges |
+
+Bridges:
+
+| Module | Owns | Bridges to |
+|---|---|---|
+| `entities`, `world`, `corpus_loader` | `Jurisdiction`, `LegalPerson`, `Instrument`, `Body`, `WorldMap` | — |
+| `connection`, `scope` | connection vocabulary; `scope_applies(chain)` → `ScopeResult` | `loomground_solver.RelationAlgebra`, `compose_path`, `ESCALATE` |
+| `sources` | `Provision`, `source_rank`, `to_norm`, `resolve_provisions` | solver `Norm`, `LEX_CONFLICT_PACK` |
+| `effect` | `legal_effect(content)` → `LegalEffect` | `deontic` O/P/F, Hohfeld incidents, `correlative` |
+| `lifecycle` | `LifecycleEvent`, `in_force`, `version_in_force` | — |
+| `citation`, `crossref`, `definitions`, `referral` | `Citation`, `Definition`, `resolve_xref`, `bind_definition`, `CrossReference` | `loomground_solver.Dimension` |
+| `anchoring`, `contracts`, `validate` | `Anchor`, `ContractInstance`, `validate_corpus` → `Finding` | — |
+
+Plane boundary and escalation discipline: `docs/plane-boundary.md`.
+
+## Family
+
+Legal domain plane. Consumes: loomground-deontic (modality), loomground-solver (composition, conflict, grounded reasoning) · consumed by: RVND and loomground-team (legal role) · pipeline position: applied plane in `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`.
+
+## Status
+
+Version 0.2.1 · 334 tests · loomground-solver >=0.2,<0.6 · loomground-deontic >=0.1,<0.2 · Python >=3.10.
+
+## License
+
+Apache-2.0 · `LICENSES/Apache-2.0.txt` · `NOTICE`
