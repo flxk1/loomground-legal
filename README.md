@@ -2,6 +2,10 @@
 
 Legal domain plane: entities, jurisdictions, sources of law, applicability, and instrument lifecycle, bridged into loomground-deontic and loomground-solver.
 
+## Problem
+
+Sources of law, jurisdictions and instrument lifecycles are modelled per project. Owns those entities and bridges them into deontic and the solver.
+
 ## Install
 
 ```
@@ -18,12 +22,23 @@ Sibling checkouts beside this one run without the install step (`tests/conftest.
 ```python
 from loomground_legal import legal_effect, parse_citation, scope_applies
 
-legal_effect("duty")                             # LegalEffect(operator='O', incident='duty', correlative_incident='claim')
-parse_citation("Article 3(2)")                   # Citation(article='3', paragraph='2')
-scope_applies(["incorporated_in", "member_of"])  # ScopeResult(applies=True, basis='subject_to', axis='territorial')
+legal_effect("duty")
+parse_citation("Article 3(2)")
+scope_applies(["incorporated_in", "member_of"])
 ```
 
 Contested reach returns `applies=None, escalated=True`.
+
+## Example
+
+```
+in : legal_effect("duty")
+out: LegalEffect(content='duty', operator='O', incident='duty', correlative_incident='claim')
+in : parse_citation("Article 3(2)")
+out: Citation(instrument='', article='3', paragraph='2', point='', subparagraph='', recital='', annex='')
+in : scope_applies(["incorporated_in", "member_of"])
+out: ScopeResult(applies=True, basis='subject_to', escalated=False, axis='territorial', chain=('incorporated_in', 'member_of'))
+```
 
 ## Interface
 
