@@ -1,0 +1,55 @@
+# loomground-legal
+
+> Legal domain plane: entities, jurisdictions, sources of law, applicability, and instrument lifecycle, bridged into loomground-deontic and loomground-solver.
+
+## Problem
+Sources of law, jurisdictions and instrument lifecycles are modelled per project. Owns those entities and bridges them into deontic and the solver.
+
+## Install
+```
+git clone https://github.com/flxk1/loomground-legal
+cd loomground-legal
+python3 -m pip install -e ".[dev]" -r requirements-dev.txt
+python3 -m pytest
+```
+
+Sibling checkouts beside this one run without the install step (`tests/conftest.py`).
+
+## Usage
+```python
+from loomground_legal import legal_effect, parse_citation, scope_applies
+
+legal_effect("duty")
+parse_citation("Article 3(2)")
+scope_applies(["incorporated_in", "member_of"])
+```
+
+Contested reach returns `applies=None, escalated=True`.
+
+## Interface
+Owned data, `src/loomground_legal/artifacts/`:
+
+| File | Content |
+|---|---|
+| `connections.json` | 31 connection relations, 25 composition rules, inverses, dimensions, governing set |
+| `sources.json` | 7 source-type ranks, `eu_primary_law` … `administrative_act`, with conflict notes |
+| `world_seed.json` | 39 entities, 32 edges |
+
+Bridges:
+
+| Module | Owns | Bridges to |
+|---|---|---|
+| `entities`, `world`, `corpus_loader` | `Jurisdiction`, `LegalPerson`, `Instrument`, `Body`, `WorldMap` | — |
+| `connection`, `scope` | connection vocabulary; `scope_applies(chain)` → `ScopeResult` | `loomground_solver.RelationAlgebra`, `compose_path`, `ESCALATE` |
+| `sources` | `Provision`, `source_rank`, `to_norm`, `resolve_provisions` | solver `Norm`, `LEX_CONFLICT_PACK` |
+| `effect` | `legal_effect(content)` → `LegalEffect` | `deontic` O/P/F, Hohfeld incidents, `correlative` |
+| `lifecycle` | `LifecycleEvent`, `in_force`, `version_in_force` | — |
+| `citation`, `crossref`, `definitions`, `referral` | `Citation`, `Definition`, `resolve_xref`, `bind_definition`, `CrossReference` | `loomground_solver.Dimension` |
+| `anchoring`, `contracts`, `validate` | `Anchor`, `ContractInstance`, `validate_corpus` → `Finding` | — |
+
+Plane boundary and escalation discipline: `docs/plane-boundary.md`.
+
+## Family
+Legal domain plane. Consumes: loomground-deontic (modality), loomground-solver (composition, conflict, grounded reasoning) · consumed by: RVND and loomground-team (legal role) · pipeline position: applied plane in `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`.
+
+Language: loomground — guide https://github.com/flxk1/loomground/blob/main/llms.txt (the .lg language an agent reads, emits, validates); catalogue https://github.com/flxk1/loomground/blob/main/CATALOGUE.json
