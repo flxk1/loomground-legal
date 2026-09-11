@@ -70,7 +70,7 @@ Legal domain plane. Consumes: loomground-deontic (modality), loomground-solver (
 
 ## Status
 
-Version 0.2.1 · 334 tests · loomground-solver >=0.2,<0.6 · loomground-deontic >=0.1,<0.3 · Python >=3.10.
+Version 0.2.1 · 334 tests · loomground-solver >=0.2,<0.7 · loomground-deontic >=0.1,<0.3 · Python >=3.10.
 
 ## License
 
