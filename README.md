@@ -66,7 +66,7 @@ Plane boundary and escalation discipline: `docs/plane-boundary.md`.
 
 ## Family
 
-Legal domain plane. Consumes: loomground-deontic (modality), loomground-solver (composition, conflict, grounded reasoning) · consumed by: RVND and loomground-team (legal role) · pipeline position: applied plane in `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`.
+Legal domain plane. Consumes: loomground-deontic (modality), loomground-solver (composition, conflict, grounded reasoning) · consumed by legal agents and governance hosts · pipeline position: applied plane in `source → loomground-ingest → loomground-versum → loomground-solver → applied or diagnostic planes`.
 
 ## Status
 
