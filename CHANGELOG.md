@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.2](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.1...legal-v0.2.2) (2026-09-18)
+
+
+### Bug Fixes
+
+* **deps:** lift the solver cap to &lt;0.6 ([#8](https://github.com/flxk1/loomground-legal/issues/8)) ([c955033](https://github.com/flxk1/loomground-legal/commit/c955033c4c75a5f8fa31c5989b850967da089636))
+* **deps:** pin solver so CI can install, and correct two stale notes ([22ef769](https://github.com/flxk1/loomground-legal/commit/22ef769be659e39b286a0364228dae2ef28dc989))
+
+
+### Documentation
+
+* llms.txt generated from README ([f71feaf](https://github.com/flxk1/loomground-legal/commit/f71feaf77cc5e6ffd6ac7437907e837d80a19ef9))
+* README Problem and executed Example ([fedc754](https://github.com/flxk1/loomground-legal/commit/fedc754eb71be272eee6f99ce8f0f3e917c1de00))
+* README to canon (293 words), description, Family ([b093522](https://github.com/flxk1/loomground-legal/commit/b0935229d9b83c129ea03c70a38267e33e725070))
+* **roadmap:** reconstructing a chain of agency ([af051cb](https://github.com/flxk1/loomground-legal/commit/af051cb069a9856e447de56640d74ceb1554a817))
+* **roadmap:** reconstructing a chain of agency ([0126135](https://github.com/flxk1/loomground-legal/commit/0126135fd5e7eca0c8631796bc2d2feb14ea6990))
+
 ## [0.2.1](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.0...legal-v0.2.1) (2026-08-07)
 
 
