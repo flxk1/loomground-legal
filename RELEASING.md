@@ -28,8 +28,7 @@ Config: `release-please-config.json`, `.release-please-manifest.json`; workflow:
 ## Dependency order (this plane is downstream)
 
 legal consumes `loomground-solver` (**needs the `RelationAlgebra` release,
-≥0.3**), `loomground-deontic`, `loomground-norm`, `loomground-factual`, and
-`loomground-epistemic`. It can only publish once those are published with
+≥0.3**), `loomground-deontic`, and, through the solver, `loomground-governance`. It can only publish once those are published with
 resolvable versions; until then `requirements-dev.txt` pins their git revisions
 and CI installs from those pins. legal never blocks its upstreams; it picks up
 their releases through its own dependency updates.
@@ -41,20 +40,18 @@ tag**: once a release PR merges and the `legal-vX.Y.Z` tag exists, consumers
 depend on this repository with a pinned git revision, e.g.
 
 ```
-loomground-legal @ git+https://github.com/flxk1/loomground-legal@legal-v0.1.0
+loomground-legal @ git+https://github.com/flxk1/loomground-legal@legal-v0.2.1
 ```
 
 placed in the consumer's `requirements-dev.txt` (or equivalent) and installed
-*before* `pip install .`, so the abstract range in `pyproject.toml` is already
-satisfied and pip never needs an index. This is exactly how this repository, in
+*before* `pip install .`, so pip never needs an index. This is exactly how this repository, in
 turn, pins its own upstreams (see `requirements-dev.txt`).
 
 A dormant PyPI publish job ships in `.github/workflows/release-please.yml`,
 gated behind the `PYPI_PUBLISHING` repository variable. There is no PyPI account
 for this project, so it stays disabled; enabling it later would require
-configuring a trusted publisher first. The abstract `>=X,<Y` ranges in
-`pyproject.toml` are compatibility metadata for that possible future, never a
-current install path.
+configuring a trusted publisher first. `pyproject.toml` declares its first-party
+dependencies as direct git references at their release tags.
 
 ## Local verification before tagging
 
