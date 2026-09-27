@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.2](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.1...legal-v0.2.2) (2026-09-27)
+
+
+### Bug Fixes
+
+* **deps:** lift the solver cap to &lt;0.6 ([#8](https://github.com/flxk1/loomground-legal/issues/8)) ([c2cb7c8](https://github.com/flxk1/loomground-legal/commit/c2cb7c8953f5f11813eef3fb58a608105df5d5ab))
+* **deps:** pin solver so CI can install, and correct two stale notes ([de94577](https://github.com/flxk1/loomground-legal/commit/de945771f3c92d2373ae7185074a93732e91cf37))
+
+
+### Documentation
+
+* correct pins, dev install and upstream list; add How this is made ([4d39a93](https://github.com/flxk1/loomground-legal/commit/4d39a93dd79ef4dd517f8e4a1eaeeebab14e77df))
+* correct stale claims; add How this is made ([3ce4be8](https://github.com/flxk1/loomground-legal/commit/3ce4be8add4f0e4095f229f58c13266e6487f577))
+* How this is made names no model vendor ([ebd5cb2](https://github.com/flxk1/loomground-legal/commit/ebd5cb22dc8676f12afb74eaab059462a431777e))
+* llms.txt generated from README ([03a00d0](https://github.com/flxk1/loomground-legal/commit/03a00d0d0c7356c5afddbdc7aee228c6e38a4e52))
+* README Problem and executed Example ([49f606f](https://github.com/flxk1/loomground-legal/commit/49f606f55db1517cada28121c1ed5f7f86ef103e))
+* README to canon (293 words), description, Family ([4c88a45](https://github.com/flxk1/loomground-legal/commit/4c88a455def5b4d2311e9c574b90bcfb3d673208))
+* **roadmap:** reconstructing a chain of agency ([37c0931](https://github.com/flxk1/loomground-legal/commit/37c09316b29f814b19b0ad42bb5e9cfa3c596458))
+* **roadmap:** reconstructing a chain of agency ([2188c8b](https://github.com/flxk1/loomground-legal/commit/2188c8b6db08bd83c9adc406ba3b541806d9593b))
+
 ## [0.2.1](https://github.com/flxk1/loomground-legal/compare/legal-v0.2.0...legal-v0.2.1) (2026-08-07)
 
 
