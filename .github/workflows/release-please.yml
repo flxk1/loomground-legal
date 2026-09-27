@@ -3,6 +3,9 @@ name: release-please
 on:
   push:
     branches: [main]
+  # Runs on pull requests only so the required release/publish checks report
+  # (as skipped); both jobs act only on a push to main.
+  pull_request:
 
 permissions:
   contents: write
@@ -10,6 +13,7 @@ permissions:
 
 jobs:
   release:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     outputs:
       release-created: ${{ steps.release.outputs.release_created }}

@@ -68,11 +68,11 @@ The family is a set of sibling repositories. For local development, check them
 out beside this one and either install the pinned dev set
 
 ```
-python3 -m pip install -e ".[dev]"
+python3 -m pip install -e ".[dev]" -r requirements-dev.txt
 python3 -m pytest
 ```
 
 or, if the sibling packages are present but not installed, `tests/conftest.py` adds
 their `src/` directories to the path so `pytest` runs from a fresh checkout with
 no install step. Canonical resolution for CI is the git-revision pin set in
-the `dev` extra of `pyproject.toml`. Release mechanics are in `RELEASING.md`.
+`requirements-dev.txt`. Release mechanics are in `RELEASING.md`.
